@@ -228,5 +228,54 @@ export const K8sService = {
       if (!resp.ok) return null;
       return await resp.json();
     } catch { return null; }
+  },
+
+  // --- NEW v3.0 APIs ---
+
+  async getIngresses(namespace: string = 'all'): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/ingresses/${namespace}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getSecrets(namespace: string = 'all'): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/secrets/${namespace}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async deletePod(podName: string, namespace: string): Promise<boolean> {
+    try {
+      const resp = await authFetch(`/api/pods/${namespace}/${podName}`, { method: 'DELETE' });
+      return resp.ok;
+    } catch { return false; }
+  },
+
+  async getHPAs(namespace: string = 'all'): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/hpa/${namespace}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getPVCs(namespace: string = 'all'): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/pvcs/${namespace}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getNamespaceBreakdown(): Promise<any> {
+    try {
+      const resp = await authFetch('/api/namespace-breakdown');
+      if (!resp.ok) return {};
+      return await resp.json();
+    } catch { return {}; }
   }
 };

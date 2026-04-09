@@ -151,14 +151,14 @@ body {
 
 /* ===== SIDEBAR ===== */
 .sidebar {
-  width: 260px;
+  width: 240px;
   background: var(--bg-glass);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-right: var(--border-glass);
   display: flex;
   flex-direction: column;
-  padding: 24px;
+  padding: 20px 16px;
   z-index: 10;
 }
 
@@ -237,6 +237,10 @@ body {
   0%, 100% { box-shadow: 0 0 8px transparent; }
   50% { box-shadow: var(--shadow-glow); }
 }
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
 
 .spin, .animate-spin { animation: spin 1s linear infinite; }
 .pulse { animation: pulse 1.5s ease-in-out infinite; }
@@ -248,6 +252,62 @@ body {
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: 8px;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fade-in 0.2s ease-out;
+}
+
+.modal-content {
+  background: var(--bg-deep);
+  border: var(--border-glass);
+  border-radius: 20px;
+  width: 90%;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5), var(--shadow-glow);
+  animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ===== TABLE ROWS ===== */
+.table-row-hover {
+  transition: background 0.15s ease;
+}
+.table-row-hover:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* ===== BADGES ===== */
+.ns-badge {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--accent-blue);
+}
+
+.role-badge {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--accent-purple);
+  text-transform: capitalize;
+}
+
+/* ===== EVENT ROW ===== */
+.event-row:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
 }
 
 /* ===== CHAT / ASSISTANT ===== */
@@ -359,6 +419,13 @@ select option { background: var(--bg-deep); color: var(--text-primary); }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
-  .sidebar { width: 200px; padding: 16px; }
+  .sidebar { width: 200px; padding: 16px 12px; }
   .main-content { padding: 20px; }
+}
+
+@media (max-width: 768px) {
+  .sidebar { width: 60px; padding: 12px 8px; }
+  .sidebar nav span, .sidebar .brand span,
+  .sidebar > div:last-child span { display: none; }
+  .main-content { padding: 16px; }
 }

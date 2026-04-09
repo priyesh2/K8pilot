@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
-  BarChart3, Terminal, History, Layers, Settings, Shield,
-  ChevronRight, Cloud, LogOut, Gauge, Palette
+  BarChart3, Terminal, Layers, Settings, Shield,
+  ChevronRight, Cloud, LogOut, Gauge, Palette,
+  Activity, Globe, FileText, Server, Clock
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -31,56 +32,60 @@ export const Sidebar: React.FC<SidebarProps> = ({ onViewChange, activeView, onLo
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'deployments', label: 'Deployments', icon: Layers },
+    { id: 'pod-metrics', label: 'Pod Metrics', icon: Activity },
+    { id: 'nodes', label: 'Nodes', icon: Server },
+    { id: 'services', label: 'Services', icon: Globe },
+    { id: 'configmaps', label: 'Config', icon: FileText },
+    { id: 'events', label: 'Events', icon: Clock },
     { id: 'logs', label: 'Log Stream', icon: Terminal },
     { id: 'metrics', label: 'Metrics', icon: Gauge },
-    { id: 'history', label: 'History', icon: History },
     { id: 'registry', label: 'Registry', icon: Cloud },
   ];
 
   return (
     <aside className="sidebar">
-      <div className="brand" style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div className="brand" style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <div style={{ padding: '8px', background: 'var(--gradient-primary)', borderRadius: '10px' }}>
           <Shield size={20} color="white" />
         </div>
         <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.5px' }}>k8pilot</span>
       </div>
 
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, overflowY: 'auto' }}>
         {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => onViewChange(item.id)}
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '12px 16px', width: '100%', borderRadius: '12px', border: 'none',
+              padding: '10px 14px', width: '100%', borderRadius: '10px', border: 'none',
               background: activeView === item.id ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
               color: activeView === item.id ? 'var(--accent-blue)' : 'var(--text-secondary)',
               cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <item.icon size={20} />
-              <span style={{ fontWeight: 600 }}>{item.label}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <item.icon size={18} />
+              <span style={{ fontWeight: 600, fontSize: '0.88rem' }}>{item.label}</span>
             </div>
-            {activeView === item.id && <ChevronRight size={16} />}
+            {activeView === item.id && <ChevronRight size={14} />}
           </button>
         ))}
       </nav>
 
-      <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
         {/* Theme Switcher */}
         <button onClick={() => setShowThemes(!showThemes)}
-          style={{ width: '100%', border: 'none', background: showThemes ? 'rgba(255,255,255,0.05)' : 'transparent', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', color: 'var(--text-secondary)', cursor: 'pointer', borderRadius: '12px' }}>
-          <Palette size={20} />
-          <span style={{ fontWeight: 600 }}>Theme</span>
+          style={{ width: '100%', border: 'none', background: showThemes ? 'rgba(255,255,255,0.05)' : 'transparent', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', color: 'var(--text-secondary)', cursor: 'pointer', borderRadius: '10px' }}>
+          <Palette size={18} />
+          <span style={{ fontWeight: 600, fontSize: '0.88rem' }}>Theme</span>
         </button>
         {showThemes && (
-          <div style={{ padding: '8px 16px', display: 'flex', gap: '8px' }}>
+          <div style={{ padding: '6px 14px', display: 'flex', gap: '8px' }}>
             {THEMES.map(t => (
               <button key={t.id} title={t.label} onClick={() => setTheme(t.id)}
                 className={`theme-dot ${theme === t.id ? 'active' : ''}`}
-                style={{ background: t.color, width: '24px', height: '24px', borderRadius: '50%', border: theme === t.id ? '2px solid white' : '2px solid transparent', cursor: 'pointer', boxShadow: theme === t.id ? `0 0 12px ${t.color}` : 'none', transition: 'all 0.2s' }}
+                style={{ background: t.color, width: '22px', height: '22px', borderRadius: '50%', border: theme === t.id ? '2px solid white' : '2px solid transparent', cursor: 'pointer', boxShadow: theme === t.id ? `0 0 12px ${t.color}` : 'none', transition: 'all 0.2s' }}
               />
             ))}
           </div>
@@ -88,16 +93,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ onViewChange, activeView, onLo
 
         {/* Settings */}
         <button onClick={() => onViewChange('settings')}
-          style={{ width: '100%', border: 'none', background: activeView === 'settings' ? 'rgba(255,255,255,0.05)' : 'transparent', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', color: activeView === 'settings' ? 'var(--accent-blue)' : 'var(--text-secondary)', cursor: 'pointer', borderRadius: '12px' }}>
-          <Settings size={20} />
-          <span style={{ fontWeight: 600 }}>Settings</span>
+          style={{ width: '100%', border: 'none', background: activeView === 'settings' ? 'rgba(255,255,255,0.05)' : 'transparent', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', color: activeView === 'settings' ? 'var(--accent-blue)' : 'var(--text-secondary)', cursor: 'pointer', borderRadius: '10px' }}>
+          <Settings size={18} />
+          <span style={{ fontWeight: 600, fontSize: '0.88rem' }}>Settings</span>
         </button>
 
         {/* Logout */}
         <button onClick={onLogout}
-          style={{ width: '100%', border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', color: 'var(--error)', cursor: 'pointer', borderRadius: '12px' }}>
-          <LogOut size={20} />
-          <span style={{ fontWeight: 600 }}>Log Out</span>
+          style={{ width: '100%', border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', color: 'var(--error)', cursor: 'pointer', borderRadius: '10px' }}>
+          <LogOut size={18} />
+          <span style={{ fontWeight: 600, fontSize: '0.88rem' }}>Log Out</span>
         </button>
       </div>
     </aside>

@@ -5,6 +5,12 @@ import { Assistant } from './components/Assistant';
 import { DeploymentsView } from './components/DeploymentsView';
 import { LogsView } from './components/LogsView';
 import { MetricsView } from './components/MetricsView';
+import { PodMetricsView } from './components/PodMetricsView';
+import { NodesView } from './components/NodesView';
+import { ServicesView } from './components/ServicesView';
+import { ConfigMapsView } from './components/ConfigMapsView';
+import { EventsView } from './components/EventsView';
+import { PodDetailModal } from './components/PodDetailModal';
 import { Login } from './components/Login';
 import { K8sService } from './services/k8s';
 import { Clock, Cloud, Key, Shield, User } from 'lucide-react';
@@ -149,7 +155,7 @@ const SettingsView = ({ onLogout }: { onLogout: () => void }) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Version</span>
-              <span style={{ fontWeight: 600 }}>k8pilot v2.0</span>
+              <span style={{ fontWeight: 600 }}>k8pilot v3.0</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
               <span style={{ color: 'var(--text-secondary)' }}>AI Features</span>
@@ -171,6 +177,7 @@ function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [currentNamespace, setCurrentNamespace] = useState('all');
   const [namespaces, setNamespaces] = useState<string[]>([]);
+  const [podDetail, setPodDetail] = useState<{ name: string; namespace: string } | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -191,6 +198,15 @@ function App() {
     setCurrentView('dashboard');
   };
 
+  const handlePodClick = (podName: string, namespace: string) => {
+    setPodDetail({ name: podName, namespace });
+  };
+
+  const handleViewLogsFromModal = (podName: string, namespace: string) => {
+    setPodDetail(null);
+    setCurrentView('logs');
+  };
+
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />;
   }
@@ -200,6 +216,11 @@ function App() {
       case 'deployments': return <DeploymentsView />;
       case 'logs': return <LogsView />;
       case 'metrics': return <MetricsView />;
+      case 'pod-metrics': return <PodMetricsView />;
+      case 'nodes': return <NodesView />;
+      case 'services': return <ServicesView />;
+      case 'configmaps': return <ConfigMapsView />;
+      case 'events': return <EventsView />;
       case 'history': return <HistoryView />;
       case 'registry': return <RegistryView />;
       case 'settings': return <SettingsView onLogout={handleLogout} />;
@@ -207,7 +228,8 @@ function App() {
         <Dashboard 
           currentNS={currentNamespace} 
           namespaces={namespaces}
-          onNamespaceChange={setCurrentNamespace} 
+          onNamespaceChange={setCurrentNamespace}
+          onPodClick={handlePodClick}
         />
       );
     }
@@ -220,6 +242,14 @@ function App() {
         {renderView()}
       </main>
       <Assistant activeNamespace={currentNamespace} />
+      {podDetail && (
+        <PodDetailModal
+          podName={podDetail.name}
+          namespace={podDetail.namespace}
+          onClose={() => setPodDetail(null)}
+          onViewLogs={handleViewLogsFromModal}
+        />
+      )}
     </div>
   );
 }

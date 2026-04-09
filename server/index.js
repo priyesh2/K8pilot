@@ -585,9 +585,159 @@ app.get('/api/resource-summary', auth, async (req, res) => {
   }
 });
 
+// --- INGRESSES ---
+const k8sNetworkingApi = kc.makeApiClient(k8s.NetworkingV1Api);
+
+app.get('/api/ingresses/:namespace', auth, async (req, res) => {
+  const { namespace } = req.params;
+  try {
+    const r = namespace === 'all'
+      ? await k8sNetworkingApi.listIngressForAllNamespaces()
+      : await k8sNetworkingApi.listNamespacedIngress(namespace);
+    res.json((r.body.items || []).map(ing => {
+      const spec = ing.spec || {};
+      const rules = (spec.rules || []).map(rule => ({
+        host: rule.host || '*',
+        paths: ((rule.http && rule.http.paths) || []).map(p => ({
+          path: p.path || '/',
+          backend: (p.backend && p.backend.service) ? `${p.backend.service.name}:${(p.backend.service.port && p.backend.service.port.number) || '?'}` : '?'
+        }))
+      }));
+      return {
+        name: ing.metadata.name,
+        namespace: ing.metadata.namespace,
+        className: spec.ingressClassName || 'N/A',
+        rules,
+        tls: (spec.tls || []).map(t => t.hosts || []).flat(),
+        age: ing.metadata.creationTimestamp
+      };
+    }));
+  } catch (err) {
+    const msg = (err.body && err.body.message) || err.message || '';
+    if (msg.includes('not found')) { res.json([]); }
+    else { res.status(500).json({ error: 'Ingresses failed', detail: msg }); }
+  }
+});
+
+// --- SECRETS (metadata only — never expose secret data) ---
+app.get('/api/secrets/:namespace', auth, async (req, res) => {
+  const { namespace } = req.params;
+  try {
+    const r = namespace === 'all'
+      ? await k8sApi.listSecretForAllNamespaces()
+      : await k8sApi.listNamespacedSecret(namespace);
+    res.json((r.body.items || []).map(s => ({
+      name: s.metadata.name,
+      namespace: s.metadata.namespace,
+      type: s.type || 'Opaque',
+      keys: Object.keys(s.data || {}),
+      age: s.metadata.creationTimestamp
+    })));
+  } catch (err) {
+    res.status(500).json({ error: 'Secrets failed' });
+  }
+});
+
+// --- DELETE POD ---
+app.delete('/api/pods/:namespace/:pod', auth, async (req, res) => {
+  const { namespace, pod } = req.params;
+  try {
+    await k8sApi.deleteNamespacedPod(pod, namespace);
+    console.log(`Deleted pod ${pod} in ${namespace} by ${req.user.username}`);
+    res.json({ message: `Deleted pod ${pod}` });
+  } catch (err) {
+    console.error('Delete pod error:', err.body || err.message);
+    res.status(500).json({ error: `Delete failed: ${(err.body && err.body.message) || err.message}` });
+  }
+});
+
+// --- HPAs (Horizontal Pod Autoscalers) ---
+const k8sAutoScaleApi = kc.makeApiClient(k8s.AutoscalingV2Api);
+
+app.get('/api/hpa/:namespace', auth, async (req, res) => {
+  const { namespace } = req.params;
+  try {
+    const r = namespace === 'all'
+      ? await k8sAutoScaleApi.listHorizontalPodAutoscalerForAllNamespaces()
+      : await k8sAutoScaleApi.listNamespacedHorizontalPodAutoscaler(namespace);
+    res.json((r.body.items || []).map(h => {
+      const spec = h.spec || {};
+      const status = h.status || {};
+      return {
+        name: h.metadata.name,
+        namespace: h.metadata.namespace,
+        target: spec.scaleTargetRef ? spec.scaleTargetRef.name : '?',
+        minReplicas: spec.minReplicas || 1,
+        maxReplicas: spec.maxReplicas || '?',
+        currentReplicas: status.currentReplicas || 0,
+        desiredReplicas: status.desiredReplicas || 0,
+        metrics: (spec.metrics || []).map(m => {
+          if (m.type === 'Resource' && m.resource) {
+            return { type: m.resource.name, target: (m.resource.target && m.resource.target.averageUtilization) ? `${m.resource.target.averageUtilization}%` : '?' };
+          }
+          return { type: m.type, target: '?' };
+        }),
+        age: h.metadata.creationTimestamp
+      };
+    }));
+  } catch (err) {
+    const msg = (err.body && err.body.message) || err.message || '';
+    if (msg.includes('not found')) { res.json([]); }
+    else { res.status(500).json({ error: 'HPA failed', detail: msg }); }
+  }
+});
+
+// --- PVCs (Persistent Volume Claims) ---
+app.get('/api/pvcs/:namespace', auth, async (req, res) => {
+  const { namespace } = req.params;
+  try {
+    const r = namespace === 'all'
+      ? await k8sApi.listPersistentVolumeClaimForAllNamespaces()
+      : await k8sApi.listNamespacedPersistentVolumeClaim(namespace);
+    res.json((r.body.items || []).map(pvc => {
+      const spec = pvc.spec || {};
+      const status = pvc.status || {};
+      return {
+        name: pvc.metadata.name,
+        namespace: pvc.metadata.namespace,
+        status: status.phase || 'Unknown',
+        capacity: (status.capacity && status.capacity.storage) || 'N/A',
+        requestedStorage: (spec.resources && spec.resources.requests && spec.resources.requests.storage) || 'N/A',
+        storageClass: spec.storageClassName || 'default',
+        accessModes: spec.accessModes || [],
+        volumeName: spec.volumeName || 'N/A',
+        age: pvc.metadata.creationTimestamp
+      };
+    }));
+  } catch (err) {
+    res.status(500).json({ error: 'PVCs failed' });
+  }
+});
+
+// --- NAMESPACE RESOURCE BREAKDOWN ---
+app.get('/api/namespace-breakdown', auth, async (req, res) => {
+  try {
+    const podRes = await k8sApi.listPodForAllNamespaces();
+    const pods = podRes.body.items || [];
+    const breakdown = {};
+    pods.forEach(p => {
+      const ns = p.metadata.namespace;
+      if (!breakdown[ns]) breakdown[ns] = { pods: 0, running: 0, failing: 0, restarts: 0 };
+      breakdown[ns].pods++;
+      if (safeGet(p, 'status.phase') === 'Running') breakdown[ns].running++;
+      const cs = (p.status && p.status.containerStatuses) || [];
+      if (cs.some(c => (c.state && c.state.waiting) || (c.restartCount || 0) > 5)) breakdown[ns].failing++;
+      breakdown[ns].restarts += cs.reduce((s, c) => s + (c.restartCount || 0), 0);
+    });
+    res.json(breakdown);
+  } catch (err) {
+    res.status(500).json({ error: 'Breakdown failed' });
+  }
+});
+
 // --- SPA FALLBACK ---
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
-app.listen(port, () => console.log(`k8pilot v2.0 backend on :${port}`));
+app.listen(port, () => console.log(`k8pilot v3.0 backend on :${port}`));
