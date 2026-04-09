@@ -1,0 +1,9 @@
+# Exclude local build artifacts and node_modules
+node_modules
+dist
+server/node_modules
+.git
+.dockerignore
+Dockerfile
+deploy
+*.md

@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-assistant
+  namespace: k8pilot
+  labels:
+    app: devops-assistant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devops-assistant
+  template:
+    metadata:
+      labels:
+        app: devops-assistant
+    spec:
+      serviceAccountName: devops-assistant-sa
+      containers:
+      - name: devops-assistant
+        image: docker.io/cerebro46/k8pilot:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        env:
+        - name: JWT_SECRET
+          value: "k8pilot-secret-prod-2026"
+        - name: ADMIN_PASSWORD
+          value: "admin123"
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 5000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devops-assistant-service
+  namespace: k8pilot
+spec:
+  type: ClusterIP
+  selector:
+    app: devops-assistant
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000

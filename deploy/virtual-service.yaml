@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: k8pilot-vs
+  namespace: k8pilot
+spec:
+  hosts:
+  - "k8pilot.test.com"
+  gateways:
+  - istio-system/istio-ingressgateway
+  http:
+  - route:
+    - destination:
+        host: devops-assistant-service
+        port:
+          number: 80
