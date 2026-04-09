@@ -17,7 +17,16 @@ metadata:
   name: devops-assistant-role
 rules:
 - apiGroups: [""]
-  resources: ["pods", "pods/log", "namespaces", "events", "services", "configmaps", "nodes"]
+  resources: ["pods", "pods/log", "namespaces", "events", "services", "configmaps", "nodes", "secrets", "persistentvolumeclaims"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["delete"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
   verbs: ["get", "list", "watch"]
 - apiGroups: ["apps"]
   resources: ["deployments", "deployments/scale", "replicasets"]

@@ -26,7 +26,14 @@ Traditional Kubernetes management is painful. We've all been there:
 
 ---
 
-## ✨ Key Features
+## ✨ Key Features (v3.0 Update)
+
+### 📊 Real-Time Observability & Management
+- **Pod & Node Metrics**: Live CPU and Memory utilization per-pod, plus intuitive cluster capacity gauges via `metrics.k8s.io`.
+- **Services & Networking**: Comprehensive service discovery with type badges and ingress rules visibility.
+- **ConfigMaps & Secrets**: Securely explore configuration metadata and secret keys.
+- **Cluster Events Timeline**: A live stream of cluster events with automatic warning highlighting and chronological tracking.
+- **Interactive Pod Details**: An advanced "Describe" modal offering deep insights into container health, conditions, and resource limits directly from the dashboard.
 
 ### 🧠 Intelligent AI Assistant
 - **20+ Diagnostic Commands**: "Why is my pod crashing?", "Show CPU usage", "Security audit".
@@ -37,11 +44,6 @@ Traditional Kubernetes management is painful. We've all been there:
 - **Automated Scanning**: Scans every pod for privileged mode, root execution, and host network exposure.
 - **Vulnerability Checks**: Detects `:latest` image tags and missing resource limits.
 - **Compliance Badging**: Instant visibility into HIGH, MEDIUM, and LOW risk findings.
-
-### 📊 Real-Time Observability
-- **Metrics Dashboard**: live CPU and Memory utilization tracking via `metrics.k8s.io`.
-- **Resource Capacity Planning**: View requested vs. total cluster capacity to prevent OOM kills.
-- **Event Timeline**: A live stream of cluster events with automatic warning highlighting.
 
 ### 📜 Advanced Log Management
 - **Multi-Container Aware**: Automatically detects and selects the application container, skipping Istio/Linkerd sidecars.
@@ -88,6 +90,9 @@ kubectl apply -f deploy/namespace.yaml
 kubectl apply -f deploy/rbac.yaml
 kubectl apply -f deploy/deployment.yaml
 ```
+
+> [!IMPORTANT]
+> **v3.0 RBAC Updates**: The new `v3.0` API dashboard endpoints require expanded RBAC permissions. If you are upgrading from an older version, make sure your cluster roles have access to `secrets`, `persistentvolumeclaims`, `ingresses` (networking.k8s.io), `horizontalpodautoscalers` (autoscaling), and the `delete` verb for `pods`.
 
 ### 3. Access the Dashboard
 Expose via LoadBalancer or Port-Forward:
