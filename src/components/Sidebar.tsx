@@ -104,6 +104,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onViewChange, activeView, onLo
           <LogOut size={18} />
           <span style={{ fontWeight: 600, fontSize: '0.88rem' }}>Log Out</span>
         </button>
+
+        {/* Developer Info */}
+        <div style={{ marginTop: 'auto', paddingTop: '16px', textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+          Built by <a href="https://github.com/priyesh2" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'none', fontWeight: 600 }}>Priyesh</a>
+        </div>
       </div>
     </aside>
   );

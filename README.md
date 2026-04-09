@@ -114,4 +114,4 @@ Default Credentials: `admin` / `admin123` (Configurable via Env Vars).
 ---
 
 ## 🤝 Contributing
-Built with ❤️ by the **k8pilot** team. Feel free to open issues or submit PRs for new AI intents or themes!
+Built with ❤️ by [Priyesh](https://github.com/priyesh2). Feel free to open issues or submit PRs for new AI intents or themes!
