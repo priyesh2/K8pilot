@@ -29,6 +29,7 @@ Traditional Kubernetes management is painful. We've all been there:
 ## ✨ Key Features (The Galaxy Brain Update)
 
 ### 🚀 Peak DevOps & Pro Tooling
+- **Proactive Event Webhooks**: A native `Watcher` binds right to the cluster event stream, intercepts Warning/Error anomalies, and dispatches pristine JSON payloads dynamically to Slack, Google Chat, or Microsoft Teams.
 - **Rollout History & Rollbacks**: View a GitOps-style timeline of your `ReplicaSets` and instantly revert production to a previous version with one click.
 - **Live YAML/JSON Editor**: Directly fetch, edit, and instantly `PATCH` live Kubernetes resources straight from the UI.
 - **Infrastructure Cost Profiler**: Automatically calculates your estimated monthly cluster burn rate separated by namespace based on resource requests.
@@ -62,13 +63,14 @@ Traditional Kubernetes management is painful. We've all been there:
 - **Multi-Container Aware**: Automatically detects and selects the application container, skipping Istio/Linkerd sidecars.
 - **Interactive Logs**: Tail, filter, and export logs directly from the browser.
 
-### 🎨 Themes
-- 🌙 **Midnight**: Deep professional indigo.
-- 🟢 **Cyberpunk**: High-contrast neon hacker vibe.
-- ❄️ **Arctic**: Clean ice-blue aesthetic.
-- 🔥 **Ember**: Fire and lava intensity.
-- 🌿 **Aurora**: Smooth teal and violet gradients.
-- 🌸 **Rosé**: Luxury pink glassmorphism.
+### 🎨 25 Premium Visual Themes
+Tired of the standard Kubernetes dashboard? K8pilot features a robust aesthetic engine loaded with exactly 25 top-tier styling paradigms relying heavily on modern glassmorphism. Highlights include:
+- 🌙 **Midnight**: Deep professional indigo and pure dark-modes.
+- 💻 **Matrix**: Pure black with stark phosphor hacker `#00ff41` greens.
+- 🪨 **Obsidian**: A jet black pure OLED theme with silver accents.
+- 🌸 **Sakura**: Beautiful pale cherry blossoms and striking magenta.
+- 💿 **Hologram**: Highly iridescent UI featuring airy pastels, lavender, and cyans.
+- 🔥 **Solarflare**, ❄️ **Nord**, 🧛 **Dracula**, 🌿 **Forest**, and 16 more!
 
 ---
 
