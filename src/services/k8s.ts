@@ -369,5 +369,30 @@ export const K8sService = {
       if (!resp.ok) return [];
       return await resp.json();
     } catch { return []; }
+  },
+
+  async getWebhooks(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/webhooks');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async addWebhook(name: string, url: string): Promise<boolean> {
+    try {
+      const resp = await authFetch('/api/webhooks', {
+        method: 'POST',
+        body: JSON.stringify({ name, url })
+      });
+      return resp.ok;
+    } catch { return false; }
+  },
+
+  async removeWebhook(id: string): Promise<boolean> {
+    try {
+      const resp = await authFetch(`/api/webhooks/${id}`, { method: 'DELETE' });
+      return resp.ok;
+    } catch { return false; }
   }
 };

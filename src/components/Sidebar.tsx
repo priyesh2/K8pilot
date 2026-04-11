@@ -19,6 +19,25 @@ const THEMES = [
   { id: 'ember', label: 'Ember', color: '#f97316' },
   { id: 'aurora', label: 'Aurora', color: '#14b8a6' },
   { id: 'rose', label: 'Rosé', color: '#ec4899' },
+  { id: 'matrix', label: 'Matrix', color: '#00ff41' },
+  { id: 'cobalt', label: 'Cobalt', color: '#3b82f6' },
+  { id: 'dracula', label: 'Dracula', color: '#bd93f9' },
+  { id: 'sunset', label: 'Sunset', color: '#f59e0b' },
+  { id: 'graphite', label: 'Graphite', color: '#9ca3af' },
+  { id: 'forest', label: 'Forest', color: '#10b981' },
+  { id: 'gold', label: 'Gold', color: '#fbbf24' },
+  { id: 'outrun', label: 'Outrun', color: '#ec4899' },
+  { id: 'bloodmoon', label: 'Blood Moon', color: '#ff0000' },
+  { id: 'amethyst', label: 'Amethyst', color: '#a855f7' },
+  { id: 'abyss', label: 'Abyss', color: '#0ea5e9' },
+  { id: 'monochrome', label: 'Monochrome', color: '#ffffff' },
+  { id: 'hologram', label: 'Hologram', color: '#c4b5fd' },
+  { id: 'solarflare', label: 'Solarflare', color: '#facc15' },
+  { id: 'sakura', label: 'Sakura', color: '#f472b6' },
+  { id: 'pumpkin', label: 'Pumpkin', color: '#f97316' },
+  { id: 'nord', label: 'Nord', color: '#88c0d0' },
+  { id: 'neonpunk', label: 'Neon Punk', color: '#facc15' },
+  { id: 'obsidian', label: 'Obsidian', color: '#71717a' },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ onViewChange, activeView, onLogout }) => {
@@ -92,11 +111,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onViewChange, activeView, onLo
           <span style={{ fontWeight: 600, fontSize: '0.88rem' }}>Theme</span>
         </button>
         {showThemes && (
-          <div style={{ padding: '6px 14px', display: 'flex', gap: '8px' }}>
+          <div style={{ padding: '6px 14px', display: 'flex', gap: '8px', flexWrap: 'wrap', maxHeight: '200px', overflowY: 'auto' }}>
             {THEMES.map(t => (
               <button key={t.id} title={t.label} onClick={() => setTheme(t.id)}
                 className={`theme-dot ${theme === t.id ? 'active' : ''}`}
-                style={{ background: t.color, width: '22px', height: '22px', borderRadius: '50%', border: theme === t.id ? '2px solid white' : '2px solid transparent', cursor: 'pointer', boxShadow: theme === t.id ? `0 0 12px ${t.color}` : 'none', transition: 'all 0.2s' }}
+                style={{ background: t.color, width: '22px', height: '22px', borderRadius: '50%', border: theme === t.id ? '2px solid white' : '2px solid transparent', cursor: 'pointer', boxShadow: theme === t.id ? `0 0 12px ${t.color}` : 'none', transition: 'all 0.2s', flexShrink: 0 }}
               />
             ))}
           </div>

@@ -24,17 +24,40 @@ import { CrdsView } from './components/CrdsView';
 import { CostProfilerView } from './components/CostProfilerView';
 import { Login } from './components/Login';
 import { K8sService } from './services/k8s';
-import { Clock, Cloud, Key, Shield, User } from 'lucide-react';
+import { Clock, Cloud, Key, Shield, User, Bell, Plus, Trash2 } from 'lucide-react';
 
 
 // Settings View
 const SettingsView = ({ onLogout }: { onLogout: () => void }) => {
   const user = localStorage.getItem('k8s_user') || 'admin';
   const [clusterInfo, setClusterInfo] = useState<any>(null);
+  const [webhooks, setWebhooks] = useState<any[]>([]);
+  const [hookName, setHookName] = useState('');
+  const [hookUrl, setHookUrl] = useState('');
+
+  const fetchWebhooks = () => {
+    K8sService.getWebhooks().then(setWebhooks);
+  };
 
   useEffect(() => {
     K8sService.getClusterHealth().then(setClusterInfo);
+    fetchWebhooks();
   }, []);
+
+  const handleAddWebhook = async () => {
+    if (!hookName.trim() || !hookUrl.trim()) return;
+    const ok = await K8sService.addWebhook(hookName, hookUrl);
+    if (ok) {
+      setHookName('');
+      setHookUrl('');
+      fetchWebhooks();
+    }
+  };
+
+  const handleRemoveWebhook = async (id: string) => {
+    const ok = await K8sService.removeWebhook(id);
+    if (ok) fetchWebhooks();
+  };
 
   return (
     <div className="dashboard">
@@ -152,6 +175,68 @@ const SettingsView = ({ onLogout }: { onLogout: () => void }) => {
           </div>
         </div>
       </div>
+
+      {/* Webhook Integrations */}
+      <div className="glass-card" style={{ marginTop: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+          <div style={{ padding: '10px', background: 'rgba(234,88,12,0.1)', borderRadius: '12px' }}>
+            <Bell size={22} color="var(--accent-blue)" />
+          </div>
+          <div>
+            <div style={{ fontSize: '1.25rem', fontWeight: 700 }}>Event Webhooks</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Proactively push K8s warnings to Slack or Google Chat</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+          <input 
+            type="text" 
+            placeholder="Name (e.g. Prod Slack)"
+            value={hookName}
+            onChange={(e) => setHookName(e.target.value)}
+            style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: 'var(--border-glass)', borderRadius: '10px', padding: '12px', color: 'white' }}
+          />
+          <input 
+            type="text" 
+            placeholder="Webhook URL (https://hooks.slack.com/...)"
+            value={hookUrl}
+            onChange={(e) => setHookUrl(e.target.value)}
+            style={{ flex: 2, background: 'rgba(255,255,255,0.05)', border: 'var(--border-glass)', borderRadius: '10px', padding: '12px', color: 'white' }}
+          />
+          <button 
+            onClick={handleAddWebhook}
+            disabled={!hookName || !hookUrl}
+            className="btn-primary" 
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: (!hookName || !hookUrl) ? 0.5 : 1 }}
+          >
+            <Plus size={16} /> Add
+          </button>
+        </div>
+
+        {webhooks.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {webhooks.map(w => (
+              <div key={w.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
+                <div>
+                  <div style={{ fontWeight: 600 }}>{w.name}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{w.url.substring(0, 50)}...</div>
+                </div>
+                <button 
+                  onClick={() => handleRemoveWebhook(w.id)}
+                  style={{ background: 'rgba(239,68,68,0.1)', border: 'none', color: 'var(--error)', padding: '8px', borderRadius: '8px', cursor: 'pointer' }}
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.01)', borderRadius: '10px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+            No webhooks configured. Add one to receive cluster alert notifications.
+          </div>
+        )}
+      </div>
+
     </div>
   );
 };

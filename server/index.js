@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { getWebhooks, addWebhook, removeWebhook, startEventWatcher } = require('./watcher');
 
 const app = express();
 const port = 5000;
@@ -30,6 +31,10 @@ try {
     console.error('FATAL: No K8s config found. k8pilot cannot connect to any cluster.');
   }
 }
+
+// Start watching for cluster-wide warning/error events to stream to webhooks
+startEventWatcher(kc);
+
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api);
 const k8sBatchApi = kc.makeApiClient(k8s.BatchV1Api);
@@ -895,6 +900,23 @@ app.patch('/api/yaml/:namespace/:kind/:name', auth, async (req, res) => {
     else return res.status(400).json({ error: 'Unsupported kind' });
     res.json({ message: 'Patched successfully' });
   } catch (err) { res.status(500).json({ error: 'Patch failed' }); }
+});
+
+// --- WEBHOOKS ---
+app.get('/api/webhooks', auth, (req, res) => {
+  res.json(getWebhooks());
+});
+
+app.post('/api/webhooks', auth, (req, res) => {
+  const { name, url } = req.body;
+  if (!name || !url) return res.status(400).json({ error: 'Name and URL required' });
+  const hook = addWebhook(name, url);
+  res.json(hook);
+});
+
+app.delete('/api/webhooks/:id', auth, (req, res) => {
+  removeWebhook(req.params.id);
+  res.json({ message: 'Deleted webhook' });
 });
 
 // --- COST PROFILE ---
