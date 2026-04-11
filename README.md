@@ -26,7 +26,23 @@ Traditional Kubernetes management is painful. We've all been there:
 
 ---
 
-## ✨ Key Features (v3.0 Update)
+## ✨ Key Features (The Galaxy Brain Update)
+
+### 🚀 Peak DevOps & Pro Tooling
+- **Rollout History & Rollbacks**: View a GitOps-style timeline of your `ReplicaSets` and instantly revert production to a previous version with one click.
+- **Live YAML/JSON Editor**: Directly fetch, edit, and instantly `PATCH` live Kubernetes resources straight from the UI.
+- **Infrastructure Cost Profiler**: Automatically calculates your estimated monthly cluster burn rate separated by namespace based on resource requests.
+- **Interactive Topology Map**: A smooth, drag-and-drop matrix displaying the traffic flow architecture between your Services, Deployments, and Pods.
+- **Animated Registry Stream**: A hacker-style console mimicking asynchronous registry events and OCI artifact digests.
+
+### 📊 Comprehensive Workload Support
+- **Advanced Workloads Hub**: Fully manage **StatefulSets** (Databases), **DaemonSets** (Node Agents), **Jobs** (Scripts), and **CronJobs** (Schedules) all from a unified interface.
+- **Custom Resource Definitions**: Explore all installed CRDs, operators, and cluster extensions.
+
+### 🛡️ Next-Gen Security & Auditing
+- **RBAC Security Explorer**: Audit your cluster access with a clean matrix of `ClusterRoles`, `Roles`, and their bound `RoleBindings`.
+- **Network Policies**: Review your active Kubernetes ingress and egress traffic boundaries to guarantee a zero-trust environment.
+- **Automated Pod Scanning**: Scans every pod for privileged mode, root execution, and host network exposure with instant badging.
 
 ### 📊 Real-Time Observability & Management
 - **Pod & Node Metrics**: Live CPU and Memory utilization per-pod, plus intuitive cluster capacity gauges via `metrics.k8s.io`.
@@ -40,10 +56,7 @@ Traditional Kubernetes management is painful. We've all been there:
 - **Context-Aware Memory**: Remembers which pod you're talking about during multi-step troubleshooting.
 - **Proactive Alerts**: Automatically notifies you when you switch to a namespace with failing workloads.
 
-### 🛡️ Security Audit Engine
-- **Automated Scanning**: Scans every pod for privileged mode, root execution, and host network exposure.
-- **Vulnerability Checks**: Detects `:latest` image tags and missing resource limits.
-- **Compliance Badging**: Instant visibility into HIGH, MEDIUM, and LOW risk findings.
+
 
 ### 📜 Advanced Log Management
 - **Multi-Container Aware**: Automatically detects and selects the application container, skipping Istio/Linkerd sidecars.
@@ -92,7 +105,7 @@ kubectl apply -f deploy/deployment.yaml
 ```
 
 > [!IMPORTANT]
-> **v3.0 RBAC Updates**: The new `v3.0` API dashboard endpoints require expanded RBAC permissions. If you are upgrading from an older version, make sure your cluster roles have access to `secrets`, `persistentvolumeclaims`, `ingresses` (networking.k8s.io), `horizontalpodautoscalers` (autoscaling), and the `delete` verb for `pods`.
+> **Galaxy Brain RBAC Updates**: The new DevOps dashboard endpoints require significantly expanded RBAC permissions. If you are upgrading from an older version, make sure your cluster roles have access to `apps` (Statefulsets, Daemonsets), `batch` (Jobs, CronJobs), `apiextensions.k8s.io` (CRDs), `rbac.authorization.k8s.io` (Roles, RoleBindings), and that you have `patch` and `update` verbs allowed for live YAML editing!
 
 ### 3. Access the Dashboard
 Expose via LoadBalancer or Port-Forward:

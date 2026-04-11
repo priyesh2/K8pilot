@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { K8sService, Deployment } from '../services/k8s';
-import { Layers, Maximize2, RefreshCw, Filter, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Layers, Maximize2, RefreshCw, Filter, CheckCircle2, AlertTriangle, FileCode } from 'lucide-react';
+import { LiveYamlEditorModal } from './LiveYamlEditorModal';
 
 export const DeploymentsView: React.FC = () => {
   const [deployments, setDeployments] = useState<Deployment[]>([]);
   const [namespaces, setNamespaces] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [namespace, setNamespace] = useState('all');
+  const [editTarget, setEditTarget] = useState<{ kind: string; name: string } | null>(null);
 
   useEffect(() => {
     K8sService.getNamespaces().then(setNamespaces).catch(() => {});
@@ -92,6 +94,10 @@ export const DeploymentsView: React.FC = () => {
                 <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{dep.age}</div>
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
+                <button onClick={() => setEditTarget({ kind: 'deployment', name: dep.name })} title="Edit YAML"
+                  style={{ padding: '10px', background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer' }}>
+                  <FileCode size={18} />
+                </button>
                 <button onClick={() => handleScale(dep)} title="Scale"
                   style={{ padding: '10px', background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer' }}>
                   <Maximize2 size={18} />
@@ -105,6 +111,15 @@ export const DeploymentsView: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {editTarget && (
+        <LiveYamlEditorModal 
+          namespace={editTarget.name && deployments.find(d => d.name === editTarget.name)?.namespace || namespace} 
+          kind={editTarget.kind} 
+          name={editTarget.name} 
+          onClose={() => setEditTarget(null)} 
+        />
+      )}
     </div>
   );
 };

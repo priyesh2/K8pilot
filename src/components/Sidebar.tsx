@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import {
   BarChart3, Terminal, Layers, Settings, Shield,
   ChevronRight, Cloud, LogOut, Gauge, Palette,
-  Activity, Globe, FileText, Server, Clock
+  Activity, Globe, FileText, Server, Clock,
+  Network, TrendingUp, HardDrive, Share2, ShieldAlert, Key, Database, PieChart, History
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -35,11 +36,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ onViewChange, activeView, onLo
     { id: 'pod-metrics', label: 'Pod Metrics', icon: Activity },
     { id: 'nodes', label: 'Nodes', icon: Server },
     { id: 'services', label: 'Services', icon: Globe },
+    { id: 'ingresses', label: 'Ingresses', icon: Network },
     { id: 'configmaps', label: 'Config', icon: FileText },
+    { id: 'pvcs', label: 'Storage', icon: HardDrive },
+    { id: 'hpa', label: 'Autoscaling', icon: TrendingUp },
     { id: 'events', label: 'Events', icon: Clock },
     { id: 'logs', label: 'Log Stream', icon: Terminal },
     { id: 'metrics', label: 'Metrics', icon: Gauge },
     { id: 'registry', label: 'Registry', icon: Cloud },
+    { id: 'topology', label: 'Topology Map', icon: Share2 },
+    { id: 'workloads', label: 'Adv. Workloads', icon: Database },
+    { id: 'history', label: 'Rollback Engine', icon: History },
+    { id: 'rbac', label: 'RBAC Security', icon: Key },
+    { id: 'netpols', label: 'Network Policies', icon: ShieldAlert },
+    { id: 'crds', label: 'CRDs', icon: Layers },
+    { id: 'profiler', label: 'Cost Profiler', icon: PieChart },
   ];
 
   return (

@@ -32,6 +32,9 @@ try {
 }
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 const k8sAppsApi = kc.makeApiClient(k8s.AppsV1Api);
+const k8sBatchApi = kc.makeApiClient(k8s.BatchV1Api);
+const k8sRbacApi = kc.makeApiClient(k8s.RbacAuthorizationV1Api);
+const k8sApiextensionsApi = kc.makeApiClient(k8s.ApiextensionsV1Api);
 
 // --- Safe accessor helpers (guards against null in any K8s version) ---
 const safeGet = (obj, path, def = '') => {
@@ -734,6 +737,196 @@ app.get('/api/namespace-breakdown', auth, async (req, res) => {
     res.status(500).json({ error: 'Breakdown failed' });
   }
 });
+
+// --- NEW GALAXY BRAIN APIS ---
+
+// --- STATEFULSETS ---
+app.get('/api/statefulsets/:namespace', auth, async (req, res) => {
+  const { namespace } = req.params;
+  try {
+    const r = namespace === 'all'
+      ? await k8sAppsApi.listStatefulSetForAllNamespaces()
+      : await k8sAppsApi.listNamespacedStatefulSet(namespace);
+    res.json((r.body.items || []).map(s => ({
+      name: s.metadata.name, namespace: s.metadata.namespace,
+      replicas: `${s.status.readyReplicas || 0}/${s.spec.replicas || 0}`,
+      age: s.metadata.creationTimestamp
+    })));
+  } catch (err) { res.status(500).json({ error: 'Failed' }); }
+});
+
+// --- DAEMONSETS ---
+app.get('/api/daemonsets/:namespace', auth, async (req, res) => {
+  const { namespace } = req.params;
+  try {
+    const r = namespace === 'all'
+      ? await k8sAppsApi.listDaemonSetForAllNamespaces()
+      : await k8sAppsApi.listNamespacedDaemonSet(namespace);
+    res.json((r.body.items || []).map(d => ({
+      name: d.metadata.name, namespace: d.metadata.namespace,
+      desired: d.status.desiredNumberScheduled || 0,
+      ready: d.status.numberReady || 0,
+      age: d.metadata.creationTimestamp
+    })));
+  } catch (err) { res.status(500).json({ error: 'Failed' }); }
+});
+
+// --- JOBS ---
+app.get('/api/jobs/:namespace', auth, async (req, res) => {
+  const { namespace } = req.params;
+  try {
+    const r = namespace === 'all'
+      ? await k8sBatchApi.listJobForAllNamespaces()
+      : await k8sBatchApi.listNamespacedJob(namespace);
+    res.json((r.body.items || []).map(j => ({
+      name: j.metadata.name, namespace: j.metadata.namespace,
+      status: (j.status.conditions && j.status.conditions.find(c => c.status === 'True') ? j.status.conditions.find(c => c.status === 'True').type : 'Running'),
+      age: j.metadata.creationTimestamp
+    })));
+  } catch (err) { res.status(500).json({ error: 'Failed' }); }
+});
+
+// --- CRONJOBS ---
+app.get('/api/cronjobs/:namespace', auth, async (req, res) => {
+  const { namespace } = req.params;
+  try {
+    const r = namespace === 'all'
+      ? await k8sBatchApi.listCronJobForAllNamespaces()
+      : await k8sBatchApi.listNamespacedCronJob(namespace);
+    res.json((r.body.items || []).map(c => ({
+      name: c.metadata.name, namespace: c.metadata.namespace,
+      schedule: c.spec.schedule,
+      suspend: c.spec.suspend || false,
+      active: (c.status.active || []).length,
+      lastSchedule: c.status.lastScheduleTime,
+      age: c.metadata.creationTimestamp
+    })));
+  } catch (err) { res.status(500).json({ error: 'Failed' }); }
+});
+
+// --- RBAC ---
+app.get('/api/rbac/:namespace', auth, async (req, res) => {
+  const { namespace } = req.params;
+  try {
+    let roles = [], bindings = [];
+    if (namespace === 'all') {
+      const cr = await k8sRbacApi.listClusterRole();
+      const crb = await k8sRbacApi.listClusterRoleBinding();
+      roles = cr.body.items; bindings = crb.body.items;
+    } else {
+      const r = await k8sRbacApi.listNamespacedRole(namespace);
+      const rb = await k8sRbacApi.listNamespacedRoleBinding(namespace);
+      roles = r.body.items; bindings = rb.body.items;
+    }
+    res.json({ roles: roles.map(r => r.metadata.name), bindings: bindings.map(b => ({ name: b.metadata.name, role: b.roleRef.name, subjects: b.subjects || [] })) });
+  } catch (err) { res.status(500).json({ error: 'Failed' }); }
+});
+
+// --- HISTORY (REPLICA SETS) ---
+app.get('/api/history/:namespace/:deployment', auth, async (req, res) => {
+  const { namespace, deployment } = req.params;
+  try {
+    const rsRes = await k8sAppsApi.listNamespacedReplicaSet(namespace);
+    const replicasets = (rsRes.body.items || []).filter(rs => 
+      rs.metadata.ownerReferences && rs.metadata.ownerReferences.some(o => o.kind === 'Deployment' && o.name === deployment)
+    );
+    const sorted = replicasets.map(rs => ({
+      name: rs.metadata.name,
+      revision: parseInt((rs.metadata.annotations || {})['deployment.kubernetes.io/revision'] || '0'),
+      replicas: rs.status.replicas || 0,
+      images: (rs.spec.template.spec.containers || []).map(c => c.image),
+      age: rs.metadata.creationTimestamp
+    })).sort((a, b) => b.revision - a.revision);
+    res.json(sorted);
+  } catch (err) { res.status(500).json({ error: 'Failed' }); }
+});
+
+// --- NETWORK POLICIES ---
+app.get('/api/network-policies/:namespace', auth, async (req, res) => {
+  const { namespace } = req.params;
+  try {
+    const r = namespace === 'all'
+      ? await k8sNetworkingApi.listNetworkPolicyForAllNamespaces() // Not natively grouped by all in older apis, but typical
+      : await k8sNetworkingApi.listNamespacedNetworkPolicy(namespace);
+    res.json((r.body.items || []).map(np => ({
+      name: np.metadata.name, namespace: np.metadata.namespace,
+      types: np.spec.policyTypes || [],
+      age: np.metadata.creationTimestamp
+    })));
+  } catch (err) { res.status(500).json({ error: 'Failed' }); }
+});
+
+// --- CRDS ---
+app.get('/api/crds', auth, async (req, res) => {
+  try {
+    const r = await k8sApiextensionsApi.listCustomResourceDefinition();
+    res.json((r.body.items || []).map(crd => ({
+      name: crd.metadata.name,
+      group: crd.spec.group,
+      version: (crd.spec.versions || []).find(v => v.storage)?.name || 'v1',
+      scope: crd.spec.scope,
+      age: crd.metadata.creationTimestamp
+    })));
+  } catch (err) { res.status(500).json({ error: 'Failed' }); }
+});
+
+// --- YAML GET/PATCH ---
+app.get('/api/yaml/:namespace/:kind/:name', auth, async (req, res) => {
+  const { namespace, kind, name } = req.params;
+  try {
+    let r;
+    if (kind.toLowerCase() === 'pod') r = await k8sApi.readNamespacedPod(name, namespace);
+    else if (kind.toLowerCase() === 'deployment') r = await k8sAppsApi.readNamespacedDeployment(name, namespace);
+    else if (kind.toLowerCase() === 'service') r = await k8sApi.readNamespacedService(name, namespace);
+    else return res.status(400).json({ error: 'Unsupported kind' });
+    res.json(r.body);
+  } catch (err) { res.status(500).json({ error: 'Failed' }); }
+});
+
+app.patch('/api/yaml/:namespace/:kind/:name', auth, async (req, res) => {
+  const { namespace, kind, name } = req.params;
+  const yamlObj = req.body;
+  try {
+    const options = { headers: { 'Content-Type': 'application/merge-patch+json' } };
+    let r;
+    if (kind.toLowerCase() === 'pod') r = await k8sApi.patchNamespacedPod(name, namespace, yamlObj, undefined, undefined, undefined, undefined, undefined, options);
+    else if (kind.toLowerCase() === 'deployment') r = await k8sAppsApi.patchNamespacedDeployment(name, namespace, yamlObj, undefined, undefined, undefined, undefined, undefined, options);
+    else if (kind.toLowerCase() === 'service') r = await k8sApi.patchNamespacedService(name, namespace, yamlObj, undefined, undefined, undefined, undefined, undefined, options);
+    else return res.status(400).json({ error: 'Unsupported kind' });
+    res.json({ message: 'Patched successfully' });
+  } catch (err) { res.status(500).json({ error: 'Patch failed' }); }
+});
+
+// --- COST PROFILE ---
+app.get('/api/cost-profile', auth, async (req, res) => {
+  try {
+    const pods = await k8sApi.listPodForAllNamespaces();
+    const CPU_COST_PER_CORE_MONTH = 30; // $30/mo
+    const MEM_COST_PER_GB_MONTH = 10;   // $10/mo
+
+    const costByNamespace = {};
+    pods.body.items.forEach(p => {
+      const ns = p.metadata.namespace;
+      if (!costByNamespace[ns]) costByNamespace[ns] = { cpu: 0, memGi: 0 };
+      (p.spec.containers || []).forEach(c => {
+         const reqCpuStr = (c.resources && c.resources.requests && c.resources.requests.cpu) || '0';
+         const reqMemStr = (c.resources && c.resources.requests && c.resources.requests.memory) || '0';
+         let cpu = 0; if(reqCpuStr.endsWith('m')) cpu = parseInt(reqCpuStr)/1000; else cpu = parseFloat(reqCpuStr);
+         let memGi = 0; if(reqMemStr.endsWith('Mi')) memGi = parseInt(reqMemStr)/1024; else if (reqMemStr.endsWith('Gi')) memGi = parseInt(reqMemStr);
+         costByNamespace[ns].cpu += (cpu || 0);
+         costByNamespace[ns].memGi += (memGi || 0);
+      });
+    });
+
+    const nsList = Object.keys(costByNamespace).map(ns => {
+      const estimatedCost = (costByNamespace[ns].cpu * CPU_COST_PER_CORE_MONTH) + (costByNamespace[ns].memGi * MEM_COST_PER_GB_MONTH);
+      return { namespace: ns, cpu: costByNamespace[ns].cpu.toFixed(2), memGi: costByNamespace[ns].memGi.toFixed(2), estimatedMonthlyCost: estimatedCost.toFixed(2) };
+    }).sort((a,b) => b.estimatedMonthlyCost - a.estimatedMonthlyCost);
+
+    res.json(nsList);
+  } catch(err) { res.status(500).json({ error: 'Failed' }); }
+});
+
 
 // --- SPA FALLBACK ---
 app.get('*', (req, res) => {

@@ -277,5 +277,97 @@ export const K8sService = {
       if (!resp.ok) return {};
       return await resp.json();
     } catch { return {}; }
+  },
+
+  // --- GALAXY BRAIN APIs ---
+
+  async getStatefulSets(namespace: string = 'all'): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/statefulsets/${namespace}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getDaemonSets(namespace: string = 'all'): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/daemonsets/${namespace}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getJobs(namespace: string = 'all'): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/jobs/${namespace}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getCronJobs(namespace: string = 'all'): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/cronjobs/${namespace}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getHistory(namespace: string, deployment: string): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/history/${namespace}/${deployment}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getRbac(namespace: string = 'all'): Promise<any> {
+    try {
+      const resp = await authFetch(`/api/rbac/${namespace}`);
+      if (!resp.ok) return { roles: [], bindings: [] };
+      return await resp.json();
+    } catch { return { roles: [], bindings: [] }; }
+  },
+
+  async getNetworkPolicies(namespace: string = 'all'): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/network-policies/${namespace}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getCrds(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/crds');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getYaml(namespace: string, kind: string, name: string): Promise<any> {
+    try {
+      const resp = await authFetch(`/api/yaml/${namespace}/${kind}/${name}`);
+      if (!resp.ok) return null;
+      return await resp.json();
+    } catch { return null; }
+  },
+
+  async patchYaml(namespace: string, kind: string, name: string, yamlObj: any): Promise<boolean> {
+    try {
+      const resp = await authFetch(`/api/yaml/${namespace}/${kind}/${name}`, {
+        method: 'PATCH',
+        body: JSON.stringify(yamlObj)
+      });
+      return resp.ok;
+    } catch { return false; }
+  },
+
+  async getCostProfile(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/cost-profile');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
   }
 };

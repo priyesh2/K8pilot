@@ -10,38 +10,22 @@ import { NodesView } from './components/NodesView';
 import { ServicesView } from './components/ServicesView';
 import { ConfigMapsView } from './components/ConfigMapsView';
 import { EventsView } from './components/EventsView';
+import { IngressesView } from './components/IngressesView';
+import { HPAsView } from './components/HPAsView';
+import { PVCsView } from './components/PVCsView';
 import { PodDetailModal } from './components/PodDetailModal';
+import { TopologyView } from './components/TopologyView';
+import { RegistryStreamView } from './components/RegistryStreamView';
+import { WorkloadsView } from './components/WorkloadsView';
+import { HistoryView } from './components/HistoryView';
+import { RbacView } from './components/RbacView';
+import { NetworkPoliciesView } from './components/NetworkPoliciesView';
+import { CrdsView } from './components/CrdsView';
+import { CostProfilerView } from './components/CostProfilerView';
 import { Login } from './components/Login';
 import { K8sService } from './services/k8s';
 import { Clock, Cloud, Key, Shield, User } from 'lucide-react';
 
-// Rollout History View
-const HistoryView = () => (
-  <div className="dashboard">
-    <header style={{ marginBottom: '40px' }}>
-      <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px' }}>Rollout History</h1>
-      <p style={{ color: 'var(--text-secondary)' }}>Revision tracking and rollback management</p>
-    </header>
-    <div className="glass-card" style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-      <div style={{ fontSize: '1.25rem', fontWeight: 600, color: 'white', marginBottom: '12px' }}>History Engine Ready</div>
-      Select a deployment from the "Deployments" view to see its revision history.
-    </div>
-  </div>
-);
-
-// Registry View
-const RegistryView = () => (
-  <div className="dashboard">
-    <header style={{ marginBottom: '40px' }}>
-      <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px' }}>Registry Integration</h1>
-      <p style={{ color: 'var(--text-secondary)' }}>OCI Artifact tracking & Image digests</p>
-    </header>
-    <div className="glass-card" style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-      <div style={{ fontSize: '1.25rem', fontWeight: 600, color: 'white', marginBottom: '12px' }}>OCI Bridge Connection Active</div>
-      Monitoring docker.io/cerebro46/k8pilot pull events. No new pushes detected in the last hour.
-    </div>
-  </div>
-);
 
 // Settings View
 const SettingsView = ({ onLogout }: { onLogout: () => void }) => {
@@ -220,9 +204,18 @@ function App() {
       case 'nodes': return <NodesView />;
       case 'services': return <ServicesView />;
       case 'configmaps': return <ConfigMapsView />;
+      case 'ingresses': return <IngressesView />;
+      case 'hpa': return <HPAsView />;
+      case 'pvcs': return <PVCsView />;
       case 'events': return <EventsView />;
+      case 'registry': return <RegistryStreamView />;
+      case 'topology': return <TopologyView />;
+      case 'workloads': return <WorkloadsView />;
       case 'history': return <HistoryView />;
-      case 'registry': return <RegistryView />;
+      case 'rbac': return <RbacView />;
+      case 'netpols': return <NetworkPoliciesView />;
+      case 'crds': return <CrdsView />;
+      case 'profiler': return <CostProfilerView />;
       case 'settings': return <SettingsView onLogout={handleLogout} />;
       default: return (
         <Dashboard 
