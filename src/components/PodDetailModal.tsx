@@ -1,28 +1,80 @@
 import React, { useState, useEffect } from 'react';
 import { K8sService } from '../services/k8s';
-import { X, Box, Cpu, HardDrive, Network, Tag, Activity, Trash2, Terminal, Clock } from 'lucide-react';
+import { X, Box, Cpu, HardDrive, Network, Tag, Activity, Trash2, Terminal, Clock, Zap } from 'lucide-react';
 
 interface PodDetailModalProps {
   podName: string;
   namespace: string;
   onClose: () => void;
   onViewLogs: (podName: string, namespace: string) => void;
+  onOpenTerminal: (container?: string) => void;
 }
 
-export const PodDetailModal: React.FC<PodDetailModalProps> = ({ podName, namespace, onClose, onViewLogs }) => {
+const MetricChart: React.FC<{ data: any[], label: string, color: string, dataKey: string }> = ({ data, label, color, dataKey }) => {
+  const values = data.map(d => d[dataKey]);
+  const max = Math.max(...values, 1);
+  const points = values.map((v, i) => `${(i / (data.length - 1)) * 100},${100 - (v / max * 100)}`).join(' ');
+
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>{label}</span>
+        <span style={{ fontSize: '0.8rem', fontWeight: 800, color }}>{values[values.length - 1] || 0}</span>
+      </div>
+      <div style={{ flex: 1, minHeight: '60px', position: 'relative' }}>
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+          <polyline
+            fill="none"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinejoin="round"
+            points={points}
+            style={{ filter: `drop-shadow(0 0 4px ${color}66)` }}
+          />
+        </svg>
+      </div>
+    </div>
+  );
+};
+
+export const PodDetailModal: React.FC<PodDetailModalProps> = ({ podName, namespace, onClose, onViewLogs, onOpenTerminal }) => {
   const [detail, setDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [debugging, setDebugging] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [history, setHistory] = useState<any[]>([]);
+  const [diagnosis, setDiagnosis] = useState<any>(null);
+  const [diagnosing, setDiagnosing] = useState(false);
+  const [remediation, setRemediation] = useState<any>(null);
+  const [loadingRemediation, setLoadingRemediation] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const d = await K8sService.describePod(podName, namespace);
+      const [d, h] = await Promise.all([
+        K8sService.describePod(podName, namespace),
+        K8sService.getMetricHistory(namespace, podName)
+      ]);
       setDetail(d);
+      setHistory(h);
       setLoading(false);
     };
     load();
   }, [podName, namespace]);
+
+  const handleDiagnose = async () => {
+    setDiagnosing(true);
+    setLoadingRemediation(true);
+    const [diag, rem] = await Promise.all([
+      K8sService.diagnosePod(namespace, podName),
+      K8sService.getRemediationProposal(namespace, podName)
+    ]);
+    setDiagnosis(diag);
+    setRemediation(rem);
+    setDiagnosing(false);
+    setLoadingRemediation(false);
+  };
 
   const handleDelete = async () => {
     if (!confirm(`⚠️ Delete pod "${podName}" from namespace "${namespace}"?\n\nThis will terminate the pod immediately. If it's managed by a Deployment/ReplicaSet, a replacement will be created.`)) return;
@@ -34,6 +86,22 @@ export const PodDetailModal: React.FC<PodDetailModalProps> = ({ podName, namespa
     } else {
       alert(`❌ Failed to delete pod. Check RBAC permissions.`);
       setDeleting(false);
+    }
+  };
+
+  const handleDebug = async () => {
+    if (debugging) return;
+    setDebugging(true);
+    const ok = await K8sService.injectDebugContainer(podName, namespace);
+    if (ok) {
+      alert(`🚀 Debug container injected. Opening terminal...`);
+      setTimeout(() => {
+        onOpenTerminal(); // Let it auto-detect the debug container
+        setDebugging(false);
+      }, 2000);
+    } else {
+      alert(`❌ Debug injection failed. Verify cluster version >=1.25 and RBAC permissions.`);
+      setDebugging(false);
     }
   };
 
@@ -63,6 +131,24 @@ export const PodDetailModal: React.FC<PodDetailModalProps> = ({ podName, namespa
           </button>
         </div>
 
+        {/* Tabs */}
+        <div style={{ display: 'flex', paddingLeft: '28px', paddingRight: '28px', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          {['overview', 'history'].map(t => (
+            <button 
+              key={t}
+              onClick={() => setActiveTab(t)}
+              style={{ 
+                padding: '12px 24px', background: 'transparent', border: 'none', 
+                color: activeTab === t ? 'var(--accent-blue)' : 'var(--text-secondary)', 
+                fontWeight: 700, cursor: 'pointer', borderBottom: activeTab === t ? '2px solid var(--accent-blue)' : '2px solid transparent',
+                textTransform: 'capitalize', fontSize: '0.85rem'
+              }}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
         {/* Body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }}>
           {loading ? (
@@ -72,7 +158,7 @@ export const PodDetailModal: React.FC<PodDetailModalProps> = ({ podName, namespa
             </div>
           ) : !detail ? (
             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--error)' }}>Failed to load pod details</div>
-          ) : (
+          ) : activeTab === 'overview' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {/* Status Overview */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
@@ -104,6 +190,16 @@ export const PodDetailModal: React.FC<PodDetailModalProps> = ({ podName, namespa
                     <div style={{ fontWeight: 700, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)' }} />
                       {c.name}
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                      <button onClick={() => onOpenTerminal(c.name)} style={{
+                        display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px',
+                        background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)',
+                        borderRadius: '8px', color: 'var(--accent-purple)', fontWeight: 600, cursor: 'pointer',
+                        fontSize: '0.75rem'
+                      }}>
+                        <Terminal size={12} /> Exec
+                      </button>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.82rem' }}>
                       <div>
@@ -196,12 +292,74 @@ export const PodDetailModal: React.FC<PodDetailModalProps> = ({ podName, namespa
                   </div>
                 )}
               </div>
+
+              {/* Diagnosis Section */}
+              <div style={{ padding: '20px', background: 'rgba(59,130,246,0.05)', borderRadius: '16px', border: '1px solid rgba(59,130,246,0.1)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700 }}>
+                     <Zap size={16} color="var(--accent-blue)" /> AI Pod Doctor
+                   </div>
+                   {!diagnosis && <button onClick={handleDiagnose} disabled={diagnosing} style={{ background: 'var(--accent-blue)', border: 'none', borderRadius: '6px', color: 'white', padding: '4px 12px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
+                     {diagnosing ? 'Analyzing...' : 'Run Diagnosis'}
+                   </button>}
+                </div>
+                {diagnosis && (
+                  <div style={{ fontSize: '0.85rem' }}>
+                    <div style={{ color: diagnosis.severity === 'HIGH' ? 'var(--error)' : 'var(--text-primary)', fontWeight: 600 }}>{diagnosis.diagnosis}</div>
+                    <div style={{ marginTop: '8px', color: 'var(--text-secondary)' }}>💡 **Action:** {diagnosis.action}</div>
+                    
+                    {remediation && remediation.type !== 'INFO' && (
+                      <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: 'var(--accent-purple)', marginBottom: '8px' }}>
+                          <Zap size={14} /> Orion Auto-Fix Suggestion
+                        </div>
+                        <div style={{ fontWeight: 600, marginBottom: '4px' }}>{remediation.title}</div>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{remediation.description}</div>
+                        {remediation.patch && (
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(JSON.stringify(remediation.patch, null, 2));
+                              alert('📋 Patch copied to clipboard! You can apply this via the YAML editor or kubectl.');
+                            }}
+                            style={{ 
+                              marginTop: '12px', width: '100%', padding: '8px', background: 'var(--accent-purple)', 
+                              border: 'none', borderRadius: '8px', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: '0.75rem' 
+                            }}
+                          >
+                            Copy Remediation Patch
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+            </div>
+          ) : (
+            /* History Tab Content */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '16px' }}>Performance History (60m Window)</h3>
+                <div style={{ height: '250px', position: 'relative', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  <MetricChart data={history} label="CPU Usage (m)" color="var(--accent-blue)" dataKey="c" />
+                  <MetricChart data={history} label="Memory Usage (Mi)" color="var(--accent-purple)" dataKey="m" />
+                </div>
+              </div>
             </div>
           )}
         </div>
 
         {/* Footer Actions */}
         <div style={{ padding: '16px 28px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+          <button onClick={handleDebug} disabled={debugging} style={{
+            display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
+            background: 'rgba(34,211,238,0.1)', border: '1px solid rgba(34,211,238,0.2)',
+            borderRadius: '10px', color: 'var(--accent-cyan)', fontWeight: 600, cursor: debugging ? 'wait' : 'pointer',
+            fontSize: '0.85rem', fontFamily: 'var(--font-main)', opacity: debugging ? 0.5 : 1
+          }}>
+            <Box size={16} /> {debugging ? 'Injecting...' : 'Debug Shell'}
+          </button>
           <button onClick={() => onViewLogs(podName, namespace)} style={{
             display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
             background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)',
@@ -209,6 +367,14 @@ export const PodDetailModal: React.FC<PodDetailModalProps> = ({ podName, namespa
             fontSize: '0.85rem', fontFamily: 'var(--font-main)'
           }}>
             <Terminal size={16} /> View Logs
+          </button>
+          <button onClick={() => onOpenTerminal()} style={{
+            display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
+            background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)',
+            borderRadius: '10px', color: 'var(--accent-purple)', fontWeight: 600, cursor: 'pointer',
+            fontSize: '0.85rem', fontFamily: 'var(--font-main)'
+          }}>
+            <Terminal size={16} /> Interactive Terminal
           </button>
           <button onClick={handleDelete} disabled={deleting} style={{
             display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',

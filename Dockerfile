@@ -2,7 +2,7 @@
 FROM node:18-alpine AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 COPY . .
 RUN npm run build
 
@@ -12,7 +12,7 @@ WORKDIR /app
 COPY --from=build /app/dist ./dist
 WORKDIR /app/server
 COPY server/package*.json ./
-RUN npm install --production
+RUN npm ci --omit=dev
 COPY server/ .
 
 EXPOSE 5000

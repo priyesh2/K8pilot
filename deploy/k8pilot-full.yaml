@@ -1,4 +1,4 @@
-# 🚀 k8pilot All-in-One Deployment Manifest
+# 🚀 K8pilot v3.2 "Celestial Update" - All-in-One Deployment Manifest
 ---
 apiVersion: v1
 kind: Namespace
@@ -17,20 +17,23 @@ metadata:
   name: devops-assistant-role
 rules:
 - apiGroups: [""]
-  resources: ["pods", "pods/log", "namespaces", "events", "services", "configmaps", "nodes", "secrets", "persistentvolumeclaims"]
-  verbs: ["get", "list", "watch", "patch", "update"]
+  resources: ["pods", "pods/log", "pods/ephemeralcontainers", "namespaces", "events", "services", "endpoints", "configmaps", "nodes", "secrets", "persistentvolumeclaims", "resourcequotas", "limitranges"]
+  verbs: ["get", "list", "watch", "patch", "update", "create", "delete"]
 - apiGroups: [""]
-  resources: ["pods"]
-  verbs: ["delete"]
+  resources: ["pods/exec"]
+  verbs: ["create", "get"]
 - apiGroups: ["networking.k8s.io"]
   resources: ["ingresses", "networkpolicies"]
   verbs: ["get", "list", "watch"]
 - apiGroups: ["autoscaling"]
   resources: ["horizontalpodautoscalers"]
   verbs: ["get", "list", "watch"]
+- apiGroups: ["discovery.k8s.io"]
+  resources: ["endpointslices"]
+  verbs: ["get", "list", "watch"]
 - apiGroups: ["apps"]
   resources: ["deployments", "deployments/scale", "replicasets", "statefulsets", "daemonsets"]
-  verbs: ["get", "list", "watch", "patch", "update"]
+  verbs: ["get", "list", "watch", "patch", "update", "create", "delete"]
 - apiGroups: ["batch"]
   resources: ["jobs", "cronjobs"]
   verbs: ["get", "list", "watch", "patch", "update"]
@@ -43,6 +46,12 @@ rules:
 - apiGroups: ["metrics.k8s.io"]
   resources: ["pods", "nodes"]
   verbs: ["get", "list"]
+- apiGroups: ["storage.k8s.io"]
+  resources: ["storageclasses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["certificates.k8s.io"]
+  resources: ["certificatesigningrequests"]
+  verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

@@ -64,7 +64,7 @@ export const ServicesView: React.FC = () => {
             Services & Networking
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            Service discovery, ingress rules & network topology
+            Service discovery, ingress rules & network traffic
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -88,7 +88,7 @@ export const ServicesView: React.FC = () => {
             <Globe size={20} color="var(--accent-blue)" />
           </div>
           <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Total Services</div>
+            <div style={{ marginTop: '16px', color: 'var(--text-secondary)' }}>Loading cluster infrastructure...</div>
             <div style={{ fontSize: '1.4rem', fontWeight: 800 }}>{services.length}</div>
           </div>
         </div>

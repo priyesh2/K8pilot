@@ -1,15 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { K8sService, Pod } from '../services/k8s';
-import { Activity, Database, Server, Cpu, Filter, AlertCircle, Maximize2, RefreshCw, TrendingUp, Zap, Shield, BarChart3, Eye } from 'lucide-react';
+import { Activity, Database, Server, Cpu, Filter, AlertCircle, Maximize2, RefreshCw, TrendingUp, Zap, Shield, BarChart3, Eye, Terminal } from 'lucide-react';
 
 interface DashboardProps {
   currentNS: string;
   namespaces: string[];
   onNamespaceChange: (ns: string) => void;
   onPodClick?: (podName: string, namespace: string) => void;
+  onTerminalClick?: (podName: string, namespace: string) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ currentNS, namespaces, onNamespaceChange, onPodClick }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ currentNS, namespaces, onNamespaceChange, onPodClick, onTerminalClick }) => {
   const [pods, setPods] = useState<Pod[]>([]);
   const [events, setEvents] = useState<any[]>([]);
   const [health, setHealth] = useState<any>(null);
@@ -87,6 +88,28 @@ export const Dashboard: React.FC<DashboardProps> = ({ currentNS, namespaces, onN
   const warningEvents = events.filter(e => e.type === 'Warning');
   const topRestarters = [...pods].sort((a, b) => b.restarts - a.restarts).slice(0, 5);
 
+  const calculateHealthScore = () => {
+    if (!health || pods.length === 0) return 100;
+    let score = 100;
+    score -= (health.failing / pods.length) * 50;
+    score -= (health.degraded / (health.totalDeployments || 1)) * 30;
+    score -= Math.min(health.totalRestarts * 2, 20);
+    return Math.max(Math.round(score), 0);
+  };
+
+  const getAIObservations = () => {
+    const obs = [];
+    if (health?.failing > 0) obs.push({ type: 'error', text: `${health.failing} workloads are currently failing to start. Check logs for OOM or CrashLoop.` });
+    if (health?.degraded > 0) obs.push({ type: 'warning', text: `${health.degraded} deployments are running with degraded replica counts.` });
+    if (health?.totalRestarts > 20) obs.push({ type: 'warning', text: `High restart frequency detected across the cluster. Possible resource pressure.` });
+    if (warningEvents.length > 5) obs.push({ type: 'info', text: `Recent spike in Warning events. Investigate the events timeline.` });
+    if (obs.length === 0) obs.push({ type: 'success', text: `Cluster state is nominal. No anomalies detected by AI monitoring.` });
+    return obs;
+  };
+
+  const healthScore = calculateHealthScore();
+  const observations = getAIObservations();
+
   return (
     <div className="dashboard">
       {/* Header */}
@@ -140,7 +163,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ currentNS, namespaces, onN
         <StatCard icon={<Activity size={20} />} label="Pods" value={pods.length.toString()} color="var(--accent-cyan)" sub={`${runningPods} running`} />
         <StatCard icon={<Zap size={20} />} label="Failing" value={failingPods.toString()} color={failingPods > 0 ? 'var(--error)' : 'var(--success)'} sub={failingPods > 0 ? 'needs attention' : 'all clear'} />
         <StatCard icon={<TrendingUp size={20} />} label="Restarts" value={health ? health.totalRestarts.toString() : '...'} color="var(--warning)" sub="cluster-wide" />
-        <StatCard icon={<Shield size={20} />} label="Deployments" value={health ? health.totalDeployments.toString() : '...'} color="var(--accent-purple)" sub={health && health.degraded > 0 ? `${health.degraded} degraded` : 'all healthy'} />
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', inset: 0, background: `conic-gradient(var(--accent-blue) ${healthScore}%, transparent 0)`, opacity: 0.1 }} />
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '4px', zIndex: 1 }}>AI Health Score</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: healthScore > 80 ? 'var(--success)' : healthScore > 50 ? 'var(--warning)' : 'var(--error)', zIndex: 1 }}>{healthScore}%</div>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '24px' }}>
@@ -193,6 +220,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ currentNS, namespaces, onN
                   >
                     <Eye size={14} />
                   </button>
+                  <button onClick={(e) => { e.stopPropagation(); onTerminalClick?.(pod.name, pod.namespace); }} title="Terminal" style={{ padding: '6px', background: 'rgba(255,255,255,0.04)', border: 'none', color: 'var(--text-secondary)', borderRadius: '6px', cursor: 'pointer', transition: 'all 0.15s' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--accent-purple)'; (e.currentTarget as HTMLElement).style.background = 'rgba(168,85,247,0.1)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)'; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; }}
+                  >
+                    <Terminal size={14} />
+                  </button>
                   <button onClick={(e) => { e.stopPropagation(); handleRestart(pod); }} title="Restart" style={{ padding: '6px', background: 'rgba(255,255,255,0.04)', border: 'none', color: 'var(--text-secondary)', borderRadius: '6px', cursor: 'pointer', transition: 'all 0.15s' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--warning)'; (e.currentTarget as HTMLElement).style.background = 'rgba(245,158,11,0.1)'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)'; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; }}
@@ -213,6 +246,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ currentNS, namespaces, onN
 
         {/* Right Column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* AI Observations */}
+          <div>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Shield size={16} color="var(--accent-cyan)" /> AI Observations
+            </h2>
+            <div className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {observations.map((ob, idx) => (
+                <div key={idx} style={{ 
+                  padding: '10px', borderRadius: '8px', fontSize: '0.8rem', 
+                  background: ob.type === 'error' ? 'rgba(244,63,94,0.05)' : ob.type === 'warning' ? 'rgba(245,158,11,0.05)' : 'rgba(255,255,255,0.02)',
+                  borderLeft: `3px solid ${ob.type === 'error' ? 'var(--error)' : ob.type === 'warning' ? 'var(--warning)' : 'var(--accent-blue)'}`
+                }}>
+                  {ob.text}
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Top Restarters */}
           <div>
             <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>

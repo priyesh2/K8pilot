@@ -5,6 +5,7 @@ import { Assistant } from './components/Assistant';
 import { DeploymentsView } from './components/DeploymentsView';
 import { LogsView } from './components/LogsView';
 import { MetricsView } from './components/MetricsView';
+import { DeployWizard } from './components/DeployWizard';
 import { PodMetricsView } from './components/PodMetricsView';
 import { NodesView } from './components/NodesView';
 import { ServicesView } from './components/ServicesView';
@@ -14,7 +15,9 @@ import { IngressesView } from './components/IngressesView';
 import { HPAsView } from './components/HPAsView';
 import { PVCsView } from './components/PVCsView';
 import { PodDetailModal } from './components/PodDetailModal';
-import { TopologyView } from './components/TopologyView';
+import { TerminalModal } from './components/TerminalModal';
+import { NetworkListenView } from './components/NetworkListenView';
+import { GhostInspectorView } from './components/GhostInspectorView';
 import { RegistryStreamView } from './components/RegistryStreamView';
 import { WorkloadsView } from './components/WorkloadsView';
 import { HistoryView } from './components/HistoryView';
@@ -22,7 +25,15 @@ import { RbacView } from './components/RbacView';
 import { NetworkPoliciesView } from './components/NetworkPoliciesView';
 import { CrdsView } from './components/CrdsView';
 import { CostProfilerView } from './components/CostProfilerView';
+import { NamespacesView } from './components/NamespacesView';
+import { PulseView } from './components/PulseView';
+import { QuotaView } from './components/QuotaView';
+import { OmniSearch } from './components/OmniSearch';
 import { Login } from './components/Login';
+import { OptimizerView } from './components/OptimizerView';
+import { ComplianceView } from './components/ComplianceView';
+import { TlsAuditorView } from './components/TlsAuditorView';
+import { IntelView } from './components/IntelView';
 import { K8sService } from './services/k8s';
 import { Clock, Cloud, Key, Shield, User, Bell, Plus, Trash2 } from 'lucide-react';
 
@@ -162,7 +173,7 @@ const SettingsView = ({ onLogout }: { onLogout: () => void }) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Version</span>
-              <span style={{ fontWeight: 600 }}>k8pilot v3.0</span>
+              <span style={{ fontWeight: 600 }}>K8pilot v3.5 Orion</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
               <span style={{ color: 'var(--text-secondary)' }}>AI Features</span>
@@ -247,12 +258,25 @@ function App() {
   const [currentNamespace, setCurrentNamespace] = useState('all');
   const [namespaces, setNamespaces] = useState<string[]>([]);
   const [podDetail, setPodDetail] = useState<{ name: string; namespace: string } | null>(null);
+  const [terminalPod, setTerminalPod] = useState<{ name: string; namespace: string; container?: string } | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
       K8sService.getNamespaces().then(setNamespaces).catch(() => setNamespaces(['default']));
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowSearch(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleLogin = (token: string, user: string) => {
     localStorage.setItem('k8s_token', token);
@@ -269,6 +293,11 @@ function App() {
 
   const handlePodClick = (podName: string, namespace: string) => {
     setPodDetail({ name: podName, namespace });
+  };
+
+  const handleTerminalOpen = (podName: string, namespace: string, container?: string) => {
+    setPodDetail(null);
+    setTerminalPod({ name: podName, namespace, container });
   };
 
   const handleViewLogsFromModal = (podName: string, namespace: string) => {
@@ -294,13 +323,22 @@ function App() {
       case 'pvcs': return <PVCsView />;
       case 'events': return <EventsView />;
       case 'registry': return <RegistryStreamView />;
-      case 'topology': return <TopologyView />;
+      case 'network-listen': return <NetworkListenView />;
+      case 'ghost-inspector': return <GhostInspectorView />;
       case 'workloads': return <WorkloadsView />;
       case 'history': return <HistoryView />;
       case 'rbac': return <RbacView />;
       case 'netpols': return <NetworkPoliciesView />;
       case 'crds': return <CrdsView />;
       case 'profiler': return <CostProfilerView />;
+      case 'namespaces': return <NamespacesView />;
+      case 'pulse': return <PulseView />;
+      case 'quotas': return <QuotaView />;
+      case 'optimizer': return <OptimizerView />;
+      case 'compliance': return <ComplianceView />;
+      case 'tls-audit': return <TlsAuditorView onNavigate={setCurrentView} />;
+      case 'intel': return <IntelView />;
+      case 'deploy-app': return <DeployWizard />;
       case 'settings': return <SettingsView onLogout={handleLogout} />;
       default: return (
         <Dashboard 
@@ -308,6 +346,7 @@ function App() {
           namespaces={namespaces}
           onNamespaceChange={setCurrentNamespace}
           onPodClick={handlePodClick}
+          onTerminalClick={handleTerminalOpen}
         />
       );
     }
@@ -320,12 +359,31 @@ function App() {
         {renderView()}
       </main>
       <Assistant activeNamespace={currentNamespace} />
+      {showSearch && (
+        <OmniSearch 
+          onClose={() => setShowSearch(false)} 
+          onNavigate={(view, ns) => { 
+            setCurrentView(view); 
+            if (ns) setCurrentNamespace(ns); 
+          }}
+          onPodClick={handlePodClick}
+        />
+      )}
       {podDetail && (
         <PodDetailModal
           podName={podDetail.name}
           namespace={podDetail.namespace}
           onClose={() => setPodDetail(null)}
           onViewLogs={handleViewLogsFromModal}
+          onOpenTerminal={(container) => handleTerminalOpen(podDetail.name, podDetail.namespace, container)}
+        />
+      )}
+      {terminalPod && (
+        <TerminalModal
+          podName={terminalPod.name}
+          namespace={terminalPod.namespace}
+          container={terminalPod.container}
+          onClose={() => setTerminalPod(null)}
         />
       )}
     </div>

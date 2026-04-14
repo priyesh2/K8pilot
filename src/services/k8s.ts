@@ -77,7 +77,25 @@ export const K8sService = {
       const resp = await authFetch('/api/namespaces');
       if (!resp.ok) throw new Error('NS failed');
       return await resp.json();
-    } catch { return ['default', 'k8pilot']; }
+    } catch { return []; }
+  },
+
+  async createNamespace(name: string): Promise<boolean> {
+    try {
+      const resp = await authFetch('/api/namespaces', {
+        method: 'POST', body: JSON.stringify({ name })
+      });
+      return resp.ok;
+    } catch { return false; }
+  },
+
+  async deleteNamespace(name: string): Promise<boolean> {
+    try {
+      const resp = await authFetch(`/api/namespaces/${name}`, {
+        method: 'DELETE'
+      });
+      return resp.ok;
+    } catch { return false; }
   },
 
   async getEvents(namespace: string = 'default'): Promise<any[]> {
@@ -109,6 +127,16 @@ export const K8sService = {
     try {
       const resp = await authFetch(`/api/scale/${namespace}/${deployment}`, {
         method: 'POST', body: JSON.stringify({ replicas })
+      });
+      return resp.ok;
+    } catch { return false; }
+  },
+
+  async quickDeploy(data: { name: string; namespace: string; image: string; replicas: number; port?: number }): Promise<boolean> {
+    try {
+      const resp = await authFetch('/api/deploy', {
+        method: 'POST',
+        body: JSON.stringify(data)
       });
       return resp.ok;
     } catch { return false; }
@@ -394,5 +422,127 @@ export const K8sService = {
       const resp = await authFetch(`/api/webhooks/${id}`, { method: 'DELETE' });
       return resp.ok;
     } catch { return false; }
+  },
+
+  // --- v3.1 NEW APIs ---
+
+  async getQuotas(namespace: string = 'all'): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/quotas/${namespace}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getLimitRanges(namespace: string = 'all'): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/limitranges/${namespace}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getMetricHeatmap(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/metrics/heatmap');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async injectDebugContainer(podName: string, namespace: string, image: string = 'busybox'): Promise<boolean> {
+    try {
+      const resp = await authFetch(`/api/debug/${namespace}/${podName}`, {
+        method: 'POST',
+        body: JSON.stringify({ image })
+      });
+      return resp.ok;
+    } catch { return false; }
+  },
+
+  // --- v3.2 K8PILOT APIs ---
+
+  async getMetricHistory(namespace: string, podName: string): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/metrics/history/${namespace}/${podName}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getOptimizerRecommendations(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/metrics/optimizer');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getTlsAudit(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/tls/audit');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async diagnosePod(namespace: string, podName: string): Promise<any> {
+    try {
+      const resp = await authFetch(`/api/pod/diagnose/${namespace}/${podName}`);
+      if (!resp.ok) return null;
+      return await resp.json();
+    } catch { return null; }
+  },
+
+  // --- v3.5 ORION APIs ---
+  async getUnifiedFeed(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/intelligence/unified-feed');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getRemediationProposal(namespace: string, podName: string): Promise<any> {
+    try {
+      const resp = await authFetch(`/api/intelligence/propose-fix/${namespace}/${podName}`);
+      if (!resp.ok) return null;
+      return await resp.json();
+    } catch { return null; }
+  },
+
+  async getIntelligenceHeatmap(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/intelligence/heatmap');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getNetworkFlows(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/network/listen');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getZombies(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/cleanup/zombies');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async deleteZombies(items: any[]): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/cleanup/zombies/bulk-delete', {
+        method: 'POST',
+        body: JSON.stringify({ items })
+      });
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
   }
 };

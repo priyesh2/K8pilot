@@ -3,7 +3,7 @@ import {
   BarChart3, Terminal, Layers, Settings, Shield,
   ChevronRight, Cloud, LogOut, Gauge, Palette,
   Activity, Globe, FileText, Server, Clock,
-  Network, TrendingUp, HardDrive, Share2, ShieldAlert, Key, Database, PieChart, History
+  Network, TrendingUp, HardDrive, ShieldAlert, Key, Database, PieChart, History, Plus, Zap, ShieldCheck, TrendingDown, Lock, Trash2
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -51,9 +51,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onViewChange, activeView, onLo
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+    { id: 'pulse', label: 'Cluster Pulse', icon: Zap },
+    { id: 'quotas', label: 'Resource Auditor', icon: ShieldCheck },
     { id: 'deployments', label: 'Deployments', icon: Layers },
     { id: 'pod-metrics', label: 'Pod Metrics', icon: Activity },
-    { id: 'nodes', label: 'Nodes', icon: Server },
+    { id: 'intel', label: 'Intelligence Feed', icon: Zap },
+    { id: 'nodes', label: 'Nodes & Clusters', icon: Server },
     { id: 'services', label: 'Services', icon: Globe },
     { id: 'ingresses', label: 'Ingresses', icon: Network },
     { id: 'configmaps', label: 'Config', icon: FileText },
@@ -63,22 +66,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ onViewChange, activeView, onLo
     { id: 'logs', label: 'Log Stream', icon: Terminal },
     { id: 'metrics', label: 'Metrics', icon: Gauge },
     { id: 'registry', label: 'Registry', icon: Cloud },
-    { id: 'topology', label: 'Topology Map', icon: Share2 },
+    { id: 'network-listen', label: 'Network Listen', icon: Activity },
+    { id: 'ghost-inspector', label: 'Ghost Inspector', icon: Trash2 },
     { id: 'workloads', label: 'Adv. Workloads', icon: Database },
     { id: 'history', label: 'Rollback Engine', icon: History },
+    { id: 'optimizer', label: 'Cost Optimizer', icon: TrendingDown },
+    { id: 'compliance', label: 'Security Scorecard', icon: ShieldCheck },
+    { id: 'tls-audit', label: 'TLS Auditor', icon: Lock },
     { id: 'rbac', label: 'RBAC Security', icon: Key },
     { id: 'netpols', label: 'Network Policies', icon: ShieldAlert },
     { id: 'crds', label: 'CRDs', icon: Layers },
+    { id: 'namespaces', label: 'Namespaces', icon: Layers }, // Using Layers for NS
     { id: 'profiler', label: 'Cost Profiler', icon: PieChart },
+    { id: 'deploy-app', label: 'Quick Deploy', icon: Plus },
   ];
 
   return (
     <aside className="sidebar">
       <div className="brand" style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <div style={{ padding: '8px', background: 'var(--gradient-primary)', borderRadius: '10px' }}>
-          <Shield size={20} color="white" />
+          <Zap size={20} color="white" />
         </div>
-        <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.5px' }}>k8pilot</span>
+        <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.5px' }}>K8pilot Orion</span>
       </div>
 
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, overflowY: 'auto' }}>
@@ -137,7 +146,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onViewChange, activeView, onLo
 
         {/* Developer Info */}
         <div style={{ marginTop: 'auto', paddingTop: '16px', textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-          Built by <a href="https://github.com/priyesh2" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'none', fontWeight: 600 }}>Priyesh</a>
+          Built by <a href="https://github.com/priyesh2" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'none', fontWeight: 600 }}>K8pilot Dev Team</a>
         </div>
       </div>
     </aside>

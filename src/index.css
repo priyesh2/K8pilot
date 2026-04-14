@@ -822,3 +822,67 @@ select option { background: var(--bg-deep); color: var(--text-primary); }
   .sidebar > div:last-child span { display: none; }
   .main-content { padding: 16px; }
 }
+
+/* ===== PRINT & REPORT EXPORT ===== */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .sidebar, .assistant-panel, .no-print, .btn-primary, header button {
+    display: none !important;
+  }
+
+  .main-content {
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .dashboard {
+    background: transparent !important;
+    color: black !important;
+  }
+
+  .glass-card {
+    background: white !important;
+    border: 1px solid #eee !important;
+    color: black !important;
+    box-shadow: none !important;
+    transform: none !important;
+    break-inside: avoid;
+    margin-bottom: 2rem !important;
+  }
+
+  h1, h2, h3 { color: black !important; }
+  p, span, td, th { color: #333 !important; }
+
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  th {
+    background: #f8fafc !important;
+    border-bottom: 2px solid #ddd !important;
+  }
+
+  td {
+    border-bottom: 1px solid #eee !important;
+  }
+
+  .print-only {
+    display: block !important;
+    margin-bottom: 2rem;
+  }
+
+  /* Force background colors for bars/gauges in PDF */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+.print-only { display: none; }

@@ -1,6 +1,6 @@
-# 🚀 k8pilot: Enterprise Kubernetes Control Plane
+# 🛰️ k8pilot v3.5: The Orion Update
 
-**k8pilot** is a next-generation, AI-powered Kubernetes dashboard designed for DevOps engineers who need more than just a list of pods. It combines real-time observability, security auditing, and an intelligent assistant into a stunning, themeable interface.
+**k8pilot** is a next-generation, AI-powered Kubernetes dashboard designed for DevOps engineers who need more than just a list of pods. It combines real-time observability, security auditing, and a proactive **Intelligence Engine** into a stunning, themeable interface.
 
 ![k8pilot Interface](assets/k8pilot.png)
 
@@ -10,76 +10,41 @@
 Traditional Kubernetes management is painful. We've all been there:
 - **Terminal Blindness**: Staring at `kubectl get pods` across 20+ namespaces and missing the one pod that's quietly OOMKilled.
 - **Troubleshooting Hell**: The endless cycle of `logs` → `describe` → `google` → `repeat`.
-- **Sidecar Nightmares**: Trying to fetch logs and getting the "choose your container" error from Istio/Envoy sidecars.
-- **Information Overload**: Dashboards that are just dry tables of data without any intelligent analysis.
+- **Reactive Ops**: Waiting for a Slack alert after a pod has already been down for 5 minutes.
 - **Security Gaps**: Deploying images with `:latest` tags or privileged containers because "it just needs to work" for now.
 
-**k8pilot** was built to turn this chaos into a clean, intelligent, and visually stunning control center.
+**k8pilot** was built to turn this chaos into a clean, intelligent, and visually stunning control center, shifting from reactive monitoring to proactive intelligence.
 
 ---
 
-## 🎯 Who is this for?
-- **DevOps Engineers & SREs**: Who need to diagnose cluster state in seconds, not minutes.
-- **Platform Engineers**: Who want to provide a "safety-first" dashboard with built-in security auditing.
-- **Full-Stack Developers**: Who want a friendly, AI-assisted way to manage their workloads without being K8s gurus.
-- **Security Teams**: Who need instant visibility into container compliance and resource boundaries.
+## ✨ Key Features (The Orion Extension)
 
----
+### 🛰️ Cluster Intelligence & Automation
+- **Unified Intelligence Feed**: 🆕 A central activity stream capturing every cluster event (Scaling, Restarts, Deletions, Network events) in a persistent 24h timeline.
+- **AI-Assisted Remediation (Auto-Fix)**: 🪄 For any failing resource, K8pilot generates specific "Fix Proposals" (exact YAML patches) to resolve CrashLoops or OOMs in one click.
+- **Namespace Health Map**: 📊 A visual health heatmap scoring every environment based on real-time and historical incident churn.
+- **AI Pod Doctor**: Deep root-cause analysis of pod failures with actionable remediation steps.
 
-## ✨ Key Features (The Galaxy Brain Update)
+### 🛡️ Next-Gen Security & Compliance
+- **Security Scorecard (GPA)**: Instant compliance grading for every namespace based on RBAC, container privileges, and network policies.
+- **TLS Auditor**: 🆕 Dedicated view for auditing secrets, certificates, and security-sensitive configuration data.
+- **RBAC Security Explorer**: Audit cluster access with a clean matrix of `ClusterRoles`, `Roles`, and `RoleBindings`.
+- **Workload Scanning**: Automatic detection of privileged containers, root execution, and host path exposures.
 
-### 🚀 Peak DevOps & Pro Tooling
-- **Proactive Event Webhooks**: A native `Watcher` binds right to the cluster event stream, intercepts Warning/Error anomalies, and dispatches pristine JSON payloads dynamically to Slack, Google Chat, or Microsoft Teams.
-- **Rollout History & Rollbacks**: View a GitOps-style timeline of your `ReplicaSets` and instantly revert production to a previous version with one click.
-- **Live YAML/JSON Editor**: Directly fetch, edit, and instantly `PATCH` live Kubernetes resources straight from the UI.
-- **Infrastructure Cost Profiler**: Automatically calculates your estimated monthly cluster burn rate separated by namespace based on resource requests.
-- **Interactive Topology Map**: A smooth, drag-and-drop matrix displaying the traffic flow architecture between your Services, Deployments, and Pods.
-- **Animated Registry Stream**: A hacker-style console mimicking asynchronous registry events and OCI artifact digests.
-
-### 📊 Comprehensive Workload Support
-- **Advanced Workloads Hub**: Fully manage **StatefulSets** (Databases), **DaemonSets** (Node Agents), **Jobs** (Scripts), and **CronJobs** (Schedules) all from a unified interface.
-- **Custom Resource Definitions**: Explore all installed CRDs, operators, and cluster extensions.
-
-### 🛡️ Next-Gen Security & Auditing
-- **RBAC Security Explorer**: Audit your cluster access with a clean matrix of `ClusterRoles`, `Roles`, and their bound `RoleBindings`.
-- **Network Policies**: Review your active Kubernetes ingress and egress traffic boundaries to guarantee a zero-trust environment.
-- **Automated Pod Scanning**: Scans every pod for privileged mode, root execution, and host network exposure with instant badging.
-
-### 📊 Real-Time Observability & Management
-- **Pod & Node Metrics**: Live CPU and Memory utilization per-pod, plus intuitive cluster capacity gauges via `metrics.k8s.io`.
-- **Services & Networking**: Comprehensive service discovery with type badges and ingress rules visibility.
-- **ConfigMaps & Secrets**: Securely explore configuration metadata and secret keys.
-- **Cluster Events Timeline**: A live stream of cluster events with automatic warning highlighting and chronological tracking.
-- **Interactive Pod Details**: An advanced "Describe" modal offering deep insights into container health, conditions, and resource limits directly from the dashboard.
-
-### 🧠 Intelligent AI Assistant
-- **20+ Diagnostic Commands**: "Why is my pod crashing?", "Show CPU usage", "Security audit".
-- **Context-Aware Memory**: Remembers which pod you're talking about during multi-step troubleshooting.
-- **Proactive Alerts**: Automatically notifies you when you switch to a namespace with failing workloads.
-
-
-
-### 📜 Advanced Log Management
-- **Multi-Container Aware**: Automatically detects and selects the application container, skipping Istio/Linkerd sidecars.
-- **Interactive Logs**: Tail, filter, and export logs directly from the browser.
-
-### 🎨 25 Premium Visual Themes
-Tired of the standard Kubernetes dashboard? K8pilot features a robust aesthetic engine loaded with exactly 25 top-tier styling paradigms relying heavily on modern glassmorphism. Highlights include:
-- 🌙 **Midnight**: Deep professional indigo and pure dark-modes.
-- 💻 **Matrix**: Pure black with stark phosphor hacker `#00ff41` greens.
-- 🪨 **Obsidian**: A jet black pure OLED theme with silver accents.
-- 🌸 **Sakura**: Beautiful pale cherry blossoms and striking magenta.
-- 💿 **Hologram**: Highly iridescent UI featuring airy pastels, lavender, and cyans.
-- 🔥 **Solarflare**, ❄️ **Nord**, 🧛 **Dracula**, 🌿 **Forest**, and 16 more!
+### 🚀 Peak DevOps & Infrastructure Control
+- **Network Listen (Lite)**: 🆕 Live, high-performance service relationship traffic & flow monitoring (replaces the heavy topology map).
+- **Ghost Inspector**: 🆕 Automated detection and purging of "Zombie" resources (unused ConfigMaps, Secrets, and PVCs).
+- **Infrastructure Cost Profiler**: Estimated monthly cluster burn rate calculated by namespace based on live resource requests.
+- **Cluster Pulse (Heatmap)**: Real-time CPU/Memory intensity matrix showing workload pressure across the entire cluster.
+- **Proactive Webhooks**: Native watcher that intercepts Warning events and dispatches them to Slack/Google Chat with pristine context.
 
 ---
 
 ## 🛠️ Technology Stack
 - **Frontend**: React, TypeScript, Vite
-- **Styling**: Vanilla CSS (Rich Glassmorphism)
-- **Backend**: Node.js (Express)
-- **Kubernetes**: `@kubernetes/client-node`
-- **Infrastructure**: EKS, GKE, AKS, OKE Compatible
+- **Styling**: Vanilla CSS (Premium Glassmorphism Design System)
+- **Backend**: Node.js (Express) with persistent event buffering
+- **Kubernetes**: Native integration via `@kubernetes/client-node`
 
 ---
 
@@ -87,32 +52,24 @@ Tired of the standard Kubernetes dashboard? K8pilot features a robust aesthetic 
 
 ### 1. Build and Push
 ```bash
-docker build -t docker.io/cerebro46/k8pilot:latest .
-docker push docker.io/cerebro46/k8pilot:latest
+docker build -t docker.io/cerebro46/k8pilot:beta .
+docker push docker.io/cerebro46/k8pilot:beta
 ```
 
 ### 2. Deploy to Kubernetes
 
-**Option A: One-Command Deployment (Recommended)**
+**One-Command Deployment (Orion Tier)**
 ```bash
 kubectl apply -f deploy/k8pilot-full.yaml
 ```
 
-**Option B: Manual Granular Deployment**
-Apply the specialized RBAC permissions and deployment Manifests manually:
-```bash
-kubectl apply -f deploy/namespace.yaml
-kubectl apply -f deploy/rbac.yaml
-kubectl apply -f deploy/deployment.yaml
-```
-
 > [!IMPORTANT]
-> **Galaxy Brain RBAC Updates**: The new DevOps dashboard endpoints require significantly expanded RBAC permissions. If you are upgrading from an older version, make sure your cluster roles have access to `apps` (Statefulsets, Daemonsets), `batch` (Jobs, CronJobs), `apiextensions.k8s.io` (CRDs), `rbac.authorization.k8s.io` (Roles, RoleBindings), and that you have `patch` and `update` verbs allowed for live YAML editing!
+> **Orion v3.5 Updates**: The new **Network Listen** and **Ghost Inspector** features require list/watch permissions for `endpoints` and `endpointslices`. Ensure your `deploy/rbac.yaml` is up to date with the latest v3.5 permissions to avoid empty data views!
 
 ### 3. Access the Dashboard
 Expose via LoadBalancer or Port-Forward:
 ```bash
-kubectl port-forward svc/devops-assistant-service 3000:80 -n k8pilot
+kubectl port-forward svc/k8pilot-service 5000:80 -n k8pilot
 ```
 Default Credentials: `admin` / `admin123` (Configurable via Env Vars).
 
@@ -121,12 +78,11 @@ Default Credentials: `admin` / `admin123` (Configurable via Env Vars).
 ## 🔒 Environment Variables
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `JWT_SECRET` | Secret for session signing | `k8pilot-secret-key-2024` |
+| `JWT_SECRET` | Secret for session signing | `k8pilot-super-secret-2026` |
 | `ADMIN_USER` | Dashboard username | `admin` |
 | `ADMIN_PASSWORD` | Dashboard password | `admin123` |
-| `PORT` | Backend port | `3001` |
 
 ---
 
 ## 🤝 Contributing
-Built with ❤️ by [Priyesh](https://github.com/priyesh2). Feel free to open issues or submit PRs for new AI intents or themes!
+Built with ❤️ by [Priyesh](https://github.com/priyesh2). Feel free to open issues or submit PRs for new Orion-tier intents or themes!
