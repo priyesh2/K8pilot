@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: devops-assistant
+  name: k8pilot
   namespace: k8pilot
   labels:
-    app: devops-assistant
+    app: k8pilot
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: devops-assistant
+      app: k8pilot
   template:
     metadata:
       labels:
-        app: devops-assistant
+        app: k8pilot
     spec:
-      serviceAccountName: devops-assistant-sa
+      serviceAccountName: k8pilot-sa
       containers:
-      - name: devops-assistant
+      - name: k8pilot
         image: docker.io/cerebro46/k8pilot:latest
         imagePullPolicy: Always
         ports:
@@ -50,12 +50,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: devops-assistant-service
+  name: k8pilot-service
   namespace: k8pilot
 spec:
   type: ClusterIP
   selector:
-    app: devops-assistant
+    app: k8pilot
   ports:
     - protocol: TCP
       port: 80

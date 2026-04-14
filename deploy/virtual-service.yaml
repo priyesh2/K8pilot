@@ -11,6 +11,6 @@ spec:
   http:
   - route:
     - destination:
-        host: devops-assistant-service
+        host: k8pilot-service
         port:
           number: 80
