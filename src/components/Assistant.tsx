@@ -599,7 +599,7 @@ export const Assistant: React.FC<AssistantProps> = ({ activeNamespace }) => {
           { text: '🏥 Health', q: "How's the cluster?" },
           { text: '🔍 Diagnose', q: 'Why is pod crashing?' },
           { text: '🔄 Restart', q: 'Restart service' },
-          { text: '📜 Logs', q: 'Show logs' },
+          { text: '📜 Logs', q: 'Logs' },
           { text: '❓ Help', q: 'help' },
         ].map(chip => (
           <button key={chip.text} onClick={() => { setInput(chip.q); }}
