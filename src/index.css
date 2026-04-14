@@ -376,7 +376,108 @@
   --card-hover-glow: 0 8px 32px rgba(255, 255, 255, 0.12);
 }
 
-/* Professional themes continued... */
+[data-theme="nightowl"] {
+  --bg-deep: #011627;
+  --bg-card: rgba(1, 22, 39, 0.4);
+  --bg-glass: rgba(1, 22, 39, 0.95);
+  --text-primary: #d6deeb;
+  --text-secondary: #5f7e97;
+  --accent-blue: #82aaff;
+  --accent-purple: #c792ea;
+  --accent-cyan: #7fdbca;
+  --error: #ef5350;
+  --success: #22da6e;
+  --warning: #addb67;
+  --shadow-glow: 0 4px 30px rgba(130, 170, 255, 0.15);
+  --border-glass: 1px solid rgba(255, 255, 255, 0.05);
+  --gradient-primary: linear-gradient(135deg, #82aaff, #c792ea);
+  --gradient-accent: linear-gradient(135deg, #7fdbca, #82aaff);
+  --bg-gradient: radial-gradient(ellipse at 20% 0%, rgba(130, 170, 255, 0.1) 0%, transparent 50%),
+                 radial-gradient(ellipse at 80% 100%, rgba(199, 146, 234, 0.08) 0%, transparent 50%);
+  --card-hover-glow: 0 8px 32px rgba(130, 170, 255, 0.12);
+}
+
+[data-theme="carbon"] {
+  --bg-deep: #161616;
+  --bg-card: rgba(38, 38, 38, 0.4);
+  --bg-glass: rgba(22, 22, 22, 0.95);
+  --text-primary: #f4f4f4;
+  --text-secondary: #8d8d8d;
+  --accent-blue: #0f62fe;
+  --accent-purple: #8a3ffc;
+  --accent-cyan: #08bdba;
+  --error: #da1e28;
+  --success: #24a148;
+  --warning: #f1c21b;
+  --shadow-glow: 0 4px 30px rgba(15, 98, 254, 0.15);
+  --border-glass: 1px solid rgba(255, 255, 255, 0.08);
+  --gradient-primary: linear-gradient(135deg, #0f62fe, #8a3ffc);
+  --gradient-accent: linear-gradient(135deg, #08bdba, #0f62fe);
+  --bg-gradient: radial-gradient(ellipse at 50% 0%, rgba(15, 98, 254, 0.05) 0%, transparent 60%);
+  --card-hover-glow: 0 8px 32px rgba(15, 98, 254, 0.12);
+}
+
+[data-theme="monokai"] {
+  --bg-deep: #2d2a2e;
+  --bg-card: rgba(45, 42, 46, 0.4);
+  --bg-glass: rgba(45, 42, 46, 0.92);
+  --text-primary: #fcfcfa;
+  --text-secondary: #939293;
+  --accent-blue: #78dce8;
+  --accent-purple: #ab9df2;
+  --accent-cyan: #a9dc76;
+  --error: #ff6188;
+  --success: #a9dc76;
+  --warning: #ffd866;
+  --shadow-glow: 0 4px 30px rgba(120, 220, 232, 0.15);
+  --border-glass: 1px solid rgba(255, 255, 255, 0.06);
+  --gradient-primary: linear-gradient(135deg, #ff6188, #ab9df2);
+  --gradient-accent: linear-gradient(135deg, #78dce8, #a9dc76);
+  --bg-gradient: radial-gradient(ellipse at 20% 0%, rgba(255, 97, 136, 0.08) 0%, transparent 50%),
+                 radial-gradient(ellipse at 80% 100%, rgba(120, 220, 232, 0.06) 0%, transparent 50%);
+  --card-hover-glow: 0 8px 32px rgba(255, 97, 136, 0.1);
+}
+
+[data-theme="ghdark"] {
+  --bg-deep: #0d1117;
+  --bg-card: rgba(22, 27, 34, 0.4);
+  --bg-glass: rgba(13, 17, 23, 0.95);
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --accent-blue: #58a6ff;
+  --accent-purple: #bc8cff;
+  --accent-cyan: #39c5cf;
+  --error: #f85149;
+  --success: #3fb950;
+  --warning: #d29922;
+  --shadow-glow: 0 4px 30px rgba(88, 166, 255, 0.15);
+  --border-glass: 1px solid rgba(255, 255, 255, 0.05);
+  --gradient-primary: linear-gradient(135deg, #1f6feb, #bc8cff);
+  --gradient-accent: linear-gradient(135deg, #39c5cf, #1f6feb);
+  --bg-gradient: radial-gradient(ellipse at 50% 0%, rgba(31, 111, 235, 0.1) 0%, transparent 60%);
+  --card-hover-glow: 0 8px 32px rgba(31, 111, 235, 0.12);
+}
+
+[data-theme="purple"] {
+  --bg-deep: #2d2b55;
+  --bg-card: rgba(43, 40, 85, 0.4);
+  --bg-glass: rgba(45, 43, 85, 0.92);
+  --text-primary: #ffffff;
+  --text-secondary: #a599e9;
+  --accent-blue: #fad000;
+  --accent-purple: #ff9d00;
+  --accent-cyan: #b362ff;
+  --error: #ec407a;
+  --success: #9effff;
+  --warning: #fad000;
+  --shadow-glow: 0 4px 40px rgba(179, 98, 255, 0.2);
+  --border-glass: 1px solid rgba(255, 255, 255, 0.1);
+  --gradient-primary: linear-gradient(135deg, #b362ff, #ff9d00);
+  --gradient-accent: linear-gradient(135deg, #fad000, #b362ff);
+  --bg-gradient: radial-gradient(ellipse at 20% 0%, rgba(179, 98, 255, 0.15) 0%, transparent 50%),
+                 radial-gradient(ellipse at 80% 100%, rgba(250, 208, 0, 0.1) 0%, transparent 50%);
+  --card-hover-glow: 0 8px 32px rgba(179, 98, 255, 0.2);
+}
 
 [data-theme="obsidian"] {
   --bg-deep: #000000;

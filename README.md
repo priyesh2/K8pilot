@@ -40,7 +40,7 @@ Traditional Kubernetes management is painful. We've all been there:
 
 ## 🎨 Premium Themes (The Prism Update)
 - **Eye-Friendly Accuracy**: 🆕 Replaced high-contrast neon themes with a curated suite of professional color palettes.
-- **Elite Presets**: Includes high-end developer favorites like **Catppuccin Mocha**, **Tokyo Night**, **One Dark**, **Everforest**, and **Rose Pine**.
+- **Elite Presets**: Includes high-end developer favorites like **Catppuccin Mocha**, **Tokyo Night**, **One Dark**, **Night Owl**, **Monokai Pro**, and **IBM Carbon**.
 - **OLED Density**: Optimized dark modes (**Deep Sea**, **Obsidian**, **Vesper**) for maximum efficiency and visual comfort during long-haul debugging sessions.
 - **Glassmorphism Focus**: Every theme is tuned to maintain the premium glass-blur aesthetic of the Orion interface.
 
