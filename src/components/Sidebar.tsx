@@ -14,30 +14,25 @@ interface SidebarProps {
 
 const THEMES = [
   { id: 'midnight', label: 'Midnight', color: '#6366f1' },
-  { id: 'cyberpunk', label: 'Cyberpunk', color: '#39ff14' },
   { id: 'arctic', label: 'Arctic', color: '#0ea5e9' },
-  { id: 'ember', label: 'Ember', color: '#f97316' },
-  { id: 'aurora', label: 'Aurora', color: '#14b8a6' },
-  { id: 'rose', label: 'Rosé', color: '#ec4899' },
-  { id: 'matrix', label: 'Matrix', color: '#00ff41' },
-  { id: 'cobalt', label: 'Cobalt', color: '#3b82f6' },
+  { id: 'catppuccin', label: 'Catppuccin', color: '#cba6f7' },
+  { id: 'tokyonight', label: 'Tokyo Night', color: '#7aa2f7' },
+  { id: 'everforest', label: 'Everforest', color: '#a7c080' },
+  { id: 'rosepine', label: 'Rosé Pine', color: '#c4a7e7' },
+  { id: 'ayu', label: 'Ayu Mirage', color: '#73d0ff' },
+  { id: 'deepsea', label: 'Deep Sea', color: '#2f81f7' },
+  { id: 'onedark', label: 'One Dark', color: '#61afef' },
+  { id: 'palenight', label: 'Palenight', color: '#82aaff' },
+  { id: 'vesper', label: 'Vesper', color: '#505050' },
+  { id: 'gruvbox', label: 'Gruvbox', color: '#b16286' },
   { id: 'dracula', label: 'Dracula', color: '#bd93f9' },
-  { id: 'sunset', label: 'Sunset', color: '#f59e0b' },
+  { id: 'nord', label: 'Nord', color: '#88c0d0' },
+  { id: 'obsidian', label: 'Obsidian', color: '#71717a' },
+  { id: 'cobalt', label: 'Cobalt', color: '#3b82f6' },
   { id: 'graphite', label: 'Graphite', color: '#9ca3af' },
   { id: 'forest', label: 'Forest', color: '#10b981' },
-  { id: 'gold', label: 'Gold', color: '#fbbf24' },
-  { id: 'outrun', label: 'Outrun', color: '#ec4899' },
-  { id: 'bloodmoon', label: 'Blood Moon', color: '#ff0000' },
-  { id: 'amethyst', label: 'Amethyst', color: '#a855f7' },
   { id: 'abyss', label: 'Abyss', color: '#0ea5e9' },
   { id: 'monochrome', label: 'Monochrome', color: '#ffffff' },
-  { id: 'hologram', label: 'Hologram', color: '#c4b5fd' },
-  { id: 'solarflare', label: 'Solarflare', color: '#facc15' },
-  { id: 'sakura', label: 'Sakura', color: '#f472b6' },
-  { id: 'pumpkin', label: 'Pumpkin', color: '#f97316' },
-  { id: 'nord', label: 'Nord', color: '#88c0d0' },
-  { id: 'neonpunk', label: 'Neon Punk', color: '#facc15' },
-  { id: 'obsidian', label: 'Obsidian', color: '#71717a' },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ onViewChange, activeView, onLogout }) => {
@@ -146,7 +141,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onViewChange, activeView, onLo
 
         {/* Developer Info */}
         <div style={{ marginTop: 'auto', paddingTop: '16px', textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-          Built by <a href="https://github.com/priyesh2" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'none', fontWeight: 600 }}>K8pilot Dev Team</a>
+          Built by <a href="https://github.com/priyesh2" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'none', fontWeight: 600 }}>Priyesh</a>
         </div>
       </div>
     </aside>
