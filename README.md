@@ -4,7 +4,7 @@
 
 ![K8pilot Interface](assets/k8pilot.png)
 
-> **Docker Image**: `cerebro46/k8pilot:beta`
+> **Docker Image**: `cerebro46/k8pilot:latest`
 
 ---
 
