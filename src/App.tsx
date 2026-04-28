@@ -438,13 +438,15 @@ function App() {
       )}
       <AnimatePresence>
         {selectedAuraApp && (
-          <AuraDetailView 
-            appName={selectedAuraApp.name} 
-            namespace={selectedAuraApp.namespace} 
-            onClose={() => setSelectedAuraApp(null)}
-            onTerminal={(pod: any, container: any) => handleTerminalOpen(pod, selectedAuraApp.namespace, container)}
-            onLogs={(pod: any) => setLogPod({ name: pod, namespace: selectedAuraApp.namespace })}
-          />
+          <Suspense fallback={<ViewLoader />}>
+            <AuraDetailView 
+              appName={selectedAuraApp.name} 
+              namespace={selectedAuraApp.namespace} 
+              onClose={() => setSelectedAuraApp(null)}
+              onTerminal={(pod: any, container: any) => handleTerminalOpen(pod, selectedAuraApp.namespace, container)}
+              onLogs={(pod: any) => setLogPod({ name: pod, namespace: selectedAuraApp.namespace })}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
       {podDetail && (
