@@ -30,7 +30,7 @@ export const DeploymentsView: React.FC = () => {
   };
 
   const handleScale = async (d: Deployment) => {
-    const replicas = prompt(`Scale ${d.name} to:`, d.replicas.split('/')[1]);
+    const replicas = prompt(`Scale ${d.name} to:`, d.replicas.toString());
     if (replicas !== null) {
       const ok = await K8sService.scaleDeployment(d.namespace, d.name, parseInt(replicas));
       if (ok) fetchData();
@@ -87,7 +87,7 @@ export const DeploymentsView: React.FC = () => {
             <div style={{ display: 'flex', gap: '48px', alignItems: 'center' }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>READY</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{dep.replicas}</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{dep.readyReplicas} / {dep.replicas}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>AGE</div>

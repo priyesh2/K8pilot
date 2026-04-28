@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { K8sService } from '../services/k8s';
-import { X, Box, Cpu, HardDrive, Network, Tag, Activity, Trash2, Terminal, Clock, Zap } from 'lucide-react';
+import { X, Box, Cpu, HardDrive, Network, Tag, Activity, Trash2, Terminal, Clock, Zap, List } from 'lucide-react';
 
 interface PodDetailModalProps {
   podName: string;
   namespace: string;
   onClose: () => void;
-  onViewLogs: (podName: string, namespace: string) => void;
+  onViewLogs: (podName: string, namespace: string, container?: string) => void;
   onOpenTerminal: (container?: string) => void;
 }
 
@@ -199,6 +199,14 @@ export const PodDetailModal: React.FC<PodDetailModalProps> = ({ podName, namespa
                         fontSize: '0.75rem'
                       }}>
                         <Terminal size={12} /> Exec
+                      </button>
+                      <button onClick={() => onViewLogs(podName, namespace, c.name)} style={{
+                        display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px',
+                        background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)',
+                        borderRadius: '8px', color: 'var(--accent-blue)', fontWeight: 600, cursor: 'pointer',
+                        fontSize: '0.75rem'
+                      }}>
+                        <List size={12} /> Logs
                       </button>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.82rem' }}>

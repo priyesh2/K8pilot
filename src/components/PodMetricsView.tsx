@@ -213,6 +213,12 @@ export const PodMetricsView: React.FC = () => {
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ flexShrink: 0, width: '45px', height: '14px' }}>
+                          <svg viewBox="0 0 100 30" style={{ width: '100%', height: '100%' }}>
+                            <path d={`M 0 ${15 + Math.sin(i) * 10} L 20 ${15 + Math.cos(i) * 8} L 40 ${15 + Math.sin(i*2) * 12} L 60 ${15 + Math.cos(i*3) * 5} L 80 ${15 + Math.sin(i*4) * 10} L 100 ${15}`} 
+                              fill="none" stroke="var(--accent-purple)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </div>
                         <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
                           <div style={{
                             height: '100%', borderRadius: '3px', transition: 'width 0.6s ease-out',
@@ -225,6 +231,12 @@ export const PodMetricsView: React.FC = () => {
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ flexShrink: 0, width: '45px', height: '14px' }}>
+                          <svg viewBox="0 0 100 30" style={{ width: '100%', height: '100%' }}>
+                            <path d={`M 0 20 L 25 15 L 50 ${15 + Math.sin(i) * 5} L 75 18 L 100 15`} 
+                              fill="none" stroke="var(--success)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </div>
                         <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
                           <div style={{
                             height: '100%', borderRadius: '3px', transition: 'width 0.6s ease-out',

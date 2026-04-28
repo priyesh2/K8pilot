@@ -199,56 +199,91 @@ export const NodesView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Metrics */}
-              {metric ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {/* CPU */}
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.82rem' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
-                        <Cpu size={14} color="var(--accent-purple)" /> CPU
-                      </span>
-                      <span style={{ fontWeight: 700 }}>{formatCpu(cpuUsed)} / {node.cpu} cores <span style={{ color: cpuPercent > 85 ? 'var(--error)' : cpuPercent > 60 ? 'var(--warning)' : 'var(--text-secondary)' }}>({cpuPercent}%)</span></span>
+              {/* Metrics Section */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {metric ? (
+                  <>
+                    {/* CPU Usage */}
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.82rem' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
+                          <Cpu size={14} color="var(--accent-purple)" /> CPU Usage
+                        </span>
+                        <span style={{ fontWeight: 700 }}>{formatCpu(cpuUsed)} / {node.cpu} <span style={{ color: cpuPercent > 85 ? 'var(--error)' : cpuPercent > 60 ? 'var(--warning)' : 'var(--text-secondary)' }}>({cpuPercent}%)</span></span>
+                      </div>
+                      <div style={{ height: '8px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{
+                          height: '100%', borderRadius: '4px', transition: 'width 0.8s ease-out',
+                          width: `${Math.min(cpuPercent, 100)}%`,
+                          background: cpuPercent > 85 ? 'var(--error)' : cpuPercent > 60 ? 'var(--warning)' : 'var(--accent-purple)',
+                        }} />
+                      </div>
                     </div>
-                    <div style={{ height: '8px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                    {/* Memory Usage */}
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.82rem' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
+                          <HardDrive size={14} color="var(--success)" /> Memory Usage
+                        </span>
+                        <span style={{ fontWeight: 700 }}>{formatMem(memUsed)} / {formatMem(memCap)} <span style={{ color: memPercent > 85 ? 'var(--error)' : memPercent > 60 ? 'var(--warning)' : 'var(--text-secondary)' }}>({memPercent}%)</span></span>
+                      </div>
+                      <div style={{ height: '8px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{
+                          height: '100%', borderRadius: '4px', transition: 'width 0.8s ease-out',
+                          width: `${Math.min(memPercent, 100)}%`,
+                          background: memPercent > 85 ? 'var(--error)' : memPercent > 60 ? 'var(--warning)' : 'var(--success)',
+                        }} />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.85rem' }}>
+                    <div style={{ padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', textAlign: 'center' }}>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>CPU Capacity</div>
+                      <div style={{ fontWeight: 700 }}>{node.cpu} cores</div>
+                    </div>
+                    <div style={{ padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', textAlign: 'center' }}>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>Memory</div>
+                      <div style={{ fontWeight: 700 }}>{formatMem(parseCapMem(node.memory))}</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Allocation Section (Always shown) */}
+                <div style={{ marginTop: '4px', borderTop: '1px dashed rgba(255,255,255,0.05)', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Workload Reservations (Allocated)</div>
+                  
+                  {/* CPU Allocation */}
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.75rem' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>CPU Requests</span>
+                      <span style={{ fontWeight: 700 }}>{node.allocated?.cpuMilli}m / {cpuCap / 1000000}m</span>
+                    </div>
+                    <div style={{ height: '4px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', overflow: 'hidden' }}>
                       <div style={{
-                        height: '100%', borderRadius: '4px', transition: 'width 0.8s ease-out',
-                        width: `${Math.min(cpuPercent, 100)}%`,
-                        background: cpuPercent > 85 ? 'var(--error)' : cpuPercent > 60 ? 'var(--warning)' : 'var(--accent-purple)',
-                        boxShadow: cpuPercent > 85 ? '0 0 12px rgba(239,68,68,0.4)' : 'none'
+                        height: '100%', borderRadius: '2px',
+                        width: `${Math.min((node.allocated?.cpuMilli / (cpuCap / 1000000)) * 100, 100)}%`,
+                        background: (node.allocated?.cpuMilli / (cpuCap / 1000000)) > 1 ? 'var(--error)' : 'var(--accent-blue)',
                       }} />
                     </div>
                   </div>
-                  {/* Memory */}
+
+                  {/* Memory Allocation */}
                   <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.82rem' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
-                        <HardDrive size={14} color="var(--success)" /> Memory
-                      </span>
-                      <span style={{ fontWeight: 700 }}>{formatMem(memUsed)} / {formatMem(memCap)} <span style={{ color: memPercent > 85 ? 'var(--error)' : memPercent > 60 ? 'var(--warning)' : 'var(--text-secondary)' }}>({memPercent}%)</span></span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.75rem' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Memory Requests</span>
+                      <span style={{ fontWeight: 700 }}>{formatMem(node.allocated?.memMi * 1024)} / {formatMem(memCap)}</span>
                     </div>
-                    <div style={{ height: '8px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ height: '4px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', overflow: 'hidden' }}>
                       <div style={{
-                        height: '100%', borderRadius: '4px', transition: 'width 0.8s ease-out',
-                        width: `${Math.min(memPercent, 100)}%`,
-                        background: memPercent > 85 ? 'var(--error)' : memPercent > 60 ? 'var(--warning)' : 'var(--success)',
-                        boxShadow: memPercent > 85 ? '0 0 12px rgba(239,68,68,0.4)' : 'none'
+                        height: '100%', borderRadius: '2px',
+                        width: `${Math.min((node.allocated?.memMi / (memCap / 1024)) * 100, 100)}%`,
+                        background: (node.allocated?.memMi / (memCap / 1024)) > 1 ? 'var(--error)' : 'var(--success)',
                       }} />
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.85rem' }}>
-                  <div style={{ padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', textAlign: 'center' }}>
-                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>CPU Capacity</div>
-                    <div style={{ fontWeight: 700 }}>{node.cpu} cores</div>
-                  </div>
-                  <div style={{ padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', textAlign: 'center' }}>
-                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>Memory</div>
-                    <div style={{ fontWeight: 700 }}>{formatMem(parseCapMem(node.memory))}</div>
-                  </div>
-                </div>
-              )}
+              </div>
 
               {/* Footer */}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.05)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>

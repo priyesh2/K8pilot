@@ -1,41 +1,79 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { AnimatePresence } from 'framer-motion';
+
+// === Core components (always loaded — visible on every page) ===
 import { Sidebar } from './components/Sidebar';
-import { Dashboard } from './components/Dashboard';
 import { Assistant } from './components/Assistant';
-import { DeploymentsView } from './components/DeploymentsView';
-import { LogsView } from './components/LogsView';
-import { MetricsView } from './components/MetricsView';
-import { DeployWizard } from './components/DeployWizard';
-import { PodMetricsView } from './components/PodMetricsView';
-import { NodesView } from './components/NodesView';
-import { ServicesView } from './components/ServicesView';
-import { ConfigMapsView } from './components/ConfigMapsView';
-import { EventsView } from './components/EventsView';
-import { IngressesView } from './components/IngressesView';
-import { HPAsView } from './components/HPAsView';
-import { PVCsView } from './components/PVCsView';
-import { PodDetailModal } from './components/PodDetailModal';
-import { TerminalModal } from './components/TerminalModal';
-import { NetworkListenView } from './components/NetworkListenView';
-import { GhostInspectorView } from './components/GhostInspectorView';
-import { RegistryStreamView } from './components/RegistryStreamView';
-import { WorkloadsView } from './components/WorkloadsView';
-import { HistoryView } from './components/HistoryView';
-import { RbacView } from './components/RbacView';
-import { NetworkPoliciesView } from './components/NetworkPoliciesView';
-import { CrdsView } from './components/CrdsView';
-import { CostProfilerView } from './components/CostProfilerView';
-import { NamespacesView } from './components/NamespacesView';
-import { PulseView } from './components/PulseView';
-import { QuotaView } from './components/QuotaView';
 import { OmniSearch } from './components/OmniSearch';
 import { Login } from './components/Login';
-import { OptimizerView } from './components/OptimizerView';
-import { ComplianceView } from './components/ComplianceView';
-import { TlsAuditorView } from './components/TlsAuditorView';
-import { IntelView } from './components/IntelView';
+import { PodDetailModal } from './components/PodDetailModal';
+import { TerminalModal } from './components/TerminalModal';
+import { LogsModal } from './components/LogsModal';
 import { K8sService } from './services/k8s';
 import { Clock, Cloud, Key, Shield, User, Bell, Plus, Trash2 } from 'lucide-react';
+
+// === Lazy-loaded views (loaded on demand when navigated to) ===
+// This reduces the initial bundle from ~965kB to ~200kB.
+const lazy = (importFn: () => Promise<any>, name: string): React.LazyExoticComponent<React.ComponentType<any>> =>
+  React.lazy(() => importFn().then(m => ({ default: m[name] })));
+
+const DeploymentsView = lazy(() => import('./components/DeploymentsView'), 'DeploymentsView');
+const LogsView = lazy(() => import('./components/LogsView'), 'LogsView');
+const MetricsView = lazy(() => import('./components/MetricsView'), 'MetricsView');
+const PodMetricsView = lazy(() => import('./components/PodMetricsView'), 'PodMetricsView');
+const NodesView = lazy(() => import('./components/NodesView'), 'NodesView');
+const ServicesView = lazy(() => import('./components/ServicesView'), 'ServicesView');
+const ConfigMapsView = lazy(() => import('./components/ConfigMapsView'), 'ConfigMapsView');
+const EventsView = lazy(() => import('./components/EventsView'), 'EventsView');
+const IngressesView = lazy(() => import('./components/IngressesView'), 'IngressesView');
+const HPAsView = lazy(() => import('./components/HPAsView'), 'HPAsView');
+const PVCsView = lazy(() => import('./components/PVCsView'), 'PVCsView');
+const NetworkListenView = lazy(() => import('./components/NetworkListenView'), 'NetworkListenView');
+const CleanupView = lazy(() => import('./components/CleanupView'), 'CleanupView');
+const RegistryStreamView = lazy(() => import('./components/RegistryStreamView'), 'RegistryStreamView');
+const WorkloadsView = lazy(() => import('./components/WorkloadsView'), 'WorkloadsView');
+const HistoryView = lazy(() => import('./components/HistoryView'), 'HistoryView');
+const RbacView = lazy(() => import('./components/RbacView'), 'RbacView');
+const NetworkPoliciesView = lazy(() => import('./components/NetworkPoliciesView'), 'NetworkPoliciesView');
+const CrdsView = lazy(() => import('./components/CrdsView'), 'CrdsView');
+const NamespacesView = lazy(() => import('./components/NamespacesView'), 'NamespacesView');
+const PulseView = lazy(() => import('./components/PulseView'), 'PulseView');
+const QuotaView = lazy(() => import('./components/QuotaView'), 'QuotaView');
+const OptimizerView = lazy(() => import('./components/OptimizerView'), 'OptimizerView');
+const ComplianceView = lazy(() => import('./components/ComplianceView'), 'ComplianceView');
+const TlsAuditorView = lazy(() => import('./components/TlsAuditorView'), 'TlsAuditorView');
+const IntelView = lazy(() => import('./components/IntelView'), 'IntelView');
+const TopologyView = lazy(() => import('./components/TopologyView'), 'TopologyView');
+const NamespaceIntelligenceView = lazy(() => import('./components/NamespaceIntelligenceView'), 'NamespaceIntelligenceView');
+const NodeSpreadView = lazy(() => import('./components/NodeSpreadView'), 'NodeSpreadView');
+const ClusterEventsView = lazy(() => import('./components/ClusterEventsView'), 'ClusterEventsView');
+const AuraHubView = lazy(() => import('./components/AuraHubView'), 'AuraHubView');
+const AuraDetailView = lazy(() => import('./components/AuraDetailView'), 'AuraDetailView');
+const AuraTreeView = lazy(() => import('./components/AuraTreeView'), 'AuraTreeView');
+const ClusterHeatmapView = lazy(() => import('./components/ClusterHeatmapView'), 'ClusterHeatmapView');
+const RbacAuditorView = lazy(() => import('./components/RbacAuditorView'), 'RbacAuditorView');
+const CostProfilerView = lazy(() => import('./components/CostProfilerView'), 'CostProfilerView');
+const ImageScannerView = lazy(() => import('./components/ImageScannerView'), 'ImageScannerView');
+const RolloutTrackerView = lazy(() => import('./components/RolloutTrackerView'), 'RolloutTrackerView');
+const CapacityPlannerView = lazy(() => import('./components/CapacityPlannerView'), 'CapacityPlannerView');
+const PodHealthMatrixView = lazy(() => import('./components/PodHealthMatrixView'), 'PodHealthMatrixView');
+const IncidentTimelineView = lazy(() => import('./components/IncidentTimelineView'), 'IncidentTimelineView');
+const CronJobMonitorView = lazy(() => import('./components/CronJobMonitorView'), 'CronJobMonitorView');
+const ConfigDriftView = lazy(() => import('./components/ConfigDriftView'), 'ConfigDriftView');
+const ResourceRecommenderView = lazy(() => import('./components/ResourceRecommenderView'), 'ResourceRecommenderView');
+const NetworkDiagnosticsView = lazy(() => import('./components/NetworkDiagnosticsView'), 'NetworkDiagnosticsView');
+const ClusterBenchmarkView = lazy(() => import('./components/ClusterBenchmarkView'), 'ClusterBenchmarkView');
+
+// === Suspense Fallback ===
+const ViewLoader = () => (
+  <div className="dashboard" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+    <div style={{ textAlign: 'center' }}>
+      <div className="skeleton" style={{ width: '48px', height: '48px', borderRadius: '14px', margin: '0 auto 16px' }} />
+      <div className="skeleton" style={{ width: '200px', height: '14px', borderRadius: '8px', margin: '0 auto 8px' }} />
+      <div className="skeleton" style={{ width: '140px', height: '10px', borderRadius: '6px', margin: '0 auto' }} />
+    </div>
+  </div>
+);
 
 
 // Settings View
@@ -173,7 +211,7 @@ const SettingsView = ({ onLogout }: { onLogout: () => void }) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Version</span>
-              <span style={{ fontWeight: 600 }}>K8pilot v3.5 Orion</span>
+              <span style={{ fontWeight: 600 }}>K8pilot v4.1 Nova</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
               <span style={{ color: 'var(--text-secondary)' }}>AI Features</span>
@@ -259,6 +297,8 @@ function App() {
   const [namespaces, setNamespaces] = useState<string[]>([]);
   const [podDetail, setPodDetail] = useState<{ name: string; namespace: string } | null>(null);
   const [terminalPod, setTerminalPod] = useState<{ name: string; namespace: string; container?: string } | null>(null);
+  const [logPod, setLogPod] = useState<{ name: string; namespace: string; container?: string } | null>(null);
+  const [selectedAuraApp, setSelectedAuraApp] = useState<{ name: string; namespace: string } | null>(null);
   const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
@@ -300,9 +340,9 @@ function App() {
     setTerminalPod({ name: podName, namespace, container });
   };
 
-  const handleViewLogsFromModal = (podName: string, namespace: string) => {
+  const handleViewLogsFromModal = (podName: string, namespace: string, container?: string) => {
     setPodDetail(null);
-    setCurrentView('logs');
+    setLogPod({ name: podName, namespace, container });
   };
 
   if (!isAuthenticated) {
@@ -324,7 +364,7 @@ function App() {
       case 'events': return <EventsView />;
       case 'registry': return <RegistryStreamView />;
       case 'network-listen': return <NetworkListenView />;
-      case 'ghost-inspector': return <GhostInspectorView />;
+      case 'cleanup': return <CleanupView />;
       case 'workloads': return <WorkloadsView />;
       case 'history': return <HistoryView />;
       case 'rbac': return <RbacView />;
@@ -337,16 +377,41 @@ function App() {
       case 'optimizer': return <OptimizerView />;
       case 'compliance': return <ComplianceView />;
       case 'tls-audit': return <TlsAuditorView onNavigate={setCurrentView} />;
+      case 'namespace-intel': return <NamespaceIntelligenceView namespace={currentNamespace} />;
+      case 'node-spread': return <NodeSpreadView />;
       case 'intel': return <IntelView />;
-      case 'deploy-app': return <DeployWizard />;
+      case 'topology': return <TopologyView />;
+      case 'aura-tree': return (
+        <AuraTreeView 
+          onAppClick={(name: any, ns: any) => setSelectedAuraApp({ name, namespace: ns })} 
+          onTerminal={(pod: any, ns: any) => handleTerminalOpen(pod, ns)}
+          onLogs={(pod: any, ns: any) => setLogPod({ name: pod, namespace: ns })}
+        />
+      );
+      case 'rbac-audit': return <RbacAuditorView />;
+      case 'costs': return <CostProfilerView />;
+      case 'heatmap': return <ClusterHeatmapView />;
+      case 'cluster-events': return <ClusterEventsView />;
+      case 'image-scanner': return <ImageScannerView />;
+      case 'rollouts': return <RolloutTrackerView />;
+      case 'capacity': return <CapacityPlannerView />;
+      case 'pod-health': return <PodHealthMatrixView />;
+      case 'incidents': return <IncidentTimelineView />;
+      case 'cronjobs': return <CronJobMonitorView />;
+      case 'config-drift': return <ConfigDriftView />;
+      case 'resource-recommender': return <ResourceRecommenderView />;
+      case 'network-diagnostics': return <NetworkDiagnosticsView />;
+      case 'cluster-benchmark': return <ClusterBenchmarkView />;
       case 'settings': return <SettingsView onLogout={handleLogout} />;
+      case 'aura-hub':
       default: return (
-        <Dashboard 
+        <AuraHubView 
           currentNS={currentNamespace} 
-          namespaces={namespaces}
-          onNamespaceChange={setCurrentNamespace}
-          onPodClick={handlePodClick}
-          onTerminalClick={handleTerminalOpen}
+          onAppClick={(name: any, ns: any) => {
+            setSelectedAuraApp({ name, namespace: ns });
+          }}
+          onTerminal={(pod: any, ns: any) => handleTerminalOpen(pod, ns)}
+          onLogs={(pod: any, ns: any) => setLogPod({ name: pod, namespace: ns })}
         />
       );
     }
@@ -356,7 +421,9 @@ function App() {
     <div className="app-container">
       <Sidebar onViewChange={setCurrentView} activeView={currentView} onLogout={handleLogout} />
       <main className="main-content">
-        {renderView()}
+        <Suspense fallback={<ViewLoader />}>
+          {renderView()}
+        </Suspense>
       </main>
       <Assistant activeNamespace={currentNamespace} />
       {showSearch && (
@@ -369,6 +436,17 @@ function App() {
           onPodClick={handlePodClick}
         />
       )}
+      <AnimatePresence>
+        {selectedAuraApp && (
+          <AuraDetailView 
+            appName={selectedAuraApp.name} 
+            namespace={selectedAuraApp.namespace} 
+            onClose={() => setSelectedAuraApp(null)}
+            onTerminal={(pod: any, container: any) => handleTerminalOpen(pod, selectedAuraApp.namespace, container)}
+            onLogs={(pod: any) => setLogPod({ name: pod, namespace: selectedAuraApp.namespace })}
+          />
+        )}
+      </AnimatePresence>
       {podDetail && (
         <PodDetailModal
           podName={podDetail.name}
@@ -384,6 +462,14 @@ function App() {
           namespace={terminalPod.namespace}
           container={terminalPod.container}
           onClose={() => setTerminalPod(null)}
+        />
+      )}
+      {logPod && (
+        <LogsModal 
+          podName={logPod.name}
+          namespace={logPod.namespace}
+          container={logPod.container}
+          onClose={() => setLogPod(null)}
         />
       )}
     </div>

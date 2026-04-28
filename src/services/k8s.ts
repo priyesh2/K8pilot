@@ -13,7 +13,8 @@ export interface Pod {
 export interface Deployment {
   name: string;
   namespace: string;
-  replicas: string;
+  replicas: number;
+  readyReplicas: number;
   status: 'Healthy' | 'Degraded';
   images: string[];
   age: string;
@@ -544,5 +545,130 @@ export const K8sService = {
       if (!resp.ok) return [];
       return await resp.json();
     } catch { return []; }
+  },
+
+  async getCrdInstances(group: string, version: string, plural: string): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/crds/instances/${group}/${version}/${plural}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getTopology(namespace: string): Promise<any[]> {
+    try {
+      const resp = await authFetch(`/api/topology/${namespace}`);
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getRbacAudit(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/rbac/audit');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getCostAudit(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/cost/audit');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async restartDeployment(namespace: string, name: string): Promise<boolean> {
+    try {
+      const resp = await authFetch(`/api/deployments/restart/${namespace}/${name}`, { method: 'POST' });
+      return resp.ok;
+    } catch { return false; }
+  },
+
+  async getUnusedResources(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/audit/unused');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  // --- v4.0 NOVA APIs ---
+
+  async getRollouts(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/rollouts');
+      if (!resp.ok) return [];
+      const data = await resp.json();
+      return data.map((r: any) => ({ ...r, age: formatAge(r.age) }));
+    } catch { return []; }
+  },
+
+  async getCapacityPlan(): Promise<any> {
+    try {
+      const resp = await authFetch('/api/capacity-plan');
+      if (!resp.ok) return null;
+      return await resp.json();
+    } catch { return null; }
+  },
+
+  async getPodHealthMatrix(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/pod-health-matrix');
+      if (!resp.ok) return [];
+      const data = await resp.json();
+      return data.map((p: any) => ({ ...p, age: formatAge(p.age) }));
+    } catch { return []; }
+  },
+
+  async getIncidents(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/incidents');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  // --- v4.1 NOVA Expansion APIs ---
+
+  async getCronJobsMonitor(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/cronjobs');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getConfigDrift(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/config-drift');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getResourceRecommendations(): Promise<any[]> {
+    try {
+      const resp = await authFetch('/api/resource-recommendations');
+      if (!resp.ok) return [];
+      return await resp.json();
+    } catch { return []; }
+  },
+
+  async getNetworkDiagnostics(): Promise<any> {
+    try {
+      const resp = await authFetch('/api/network-diagnostics');
+      if (!resp.ok) return { dns: [], connectivity: [] };
+      return await resp.json();
+    } catch { return { dns: [], connectivity: [] }; }
+  },
+
+  async getClusterBenchmark(): Promise<any> {
+    try {
+      const resp = await authFetch('/api/cluster-benchmark');
+      if (!resp.ok) return null;
+      return await resp.json();
+    } catch { return null; }
   }
 };
